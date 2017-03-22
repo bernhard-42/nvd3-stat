@@ -29,23 +29,18 @@ class Nvd3Functions(object):
     makeChart = """
         
 makeChart = function(session, object, chart) {
-    console.log("makeChart called")
     var cacheId = "__nv__chart_cache_" + object.plotId;
 
-    if(typeof(window.__zeppelin_session_debug) == "undefined") {
-        window.__zeppelin_session_debug = 0;  // no debug output
-    }
-    
     var Logger = function(name) {
         this.name = name;
     }
     Logger.prototype.info = function(msg) {
-        if (window.__zeppelin_session_debug > 0) {
+        if (window.__nvd3_stat_debug > 0) {
             console.info(this.name + " [INFO] " + msg)
         }
     }
     Logger.prototype.debug = function(msg, obj) {
-        if (window.__zeppelin_session_debug > 1) {
+        if (window.__nvd3_stat_debug > 1) {
             if (typeof(obj) === "undefined") {
                 console.log(this.name + " [DEBUG] " + msg)
             } else {
@@ -55,6 +50,8 @@ makeChart = function(session, object, chart) {
     }
     var logger = new Logger("NVD3-Stat");
     
+    logger.debug("makeChart called");
+
     d3.selectAll('.nvtooltip').style('opacity', '0');  // remove all "zombie" tooltips
 
     nv.utils.windowResize = function(chart) { console.info("windowResize not supported") } // avoid d3 translate(Nan,5) errors
@@ -74,7 +71,6 @@ makeChart = function(session, object, chart) {
 
     var configure = function(chartModel, config) {
         for (var c in config) {
-            console.log("CONFIG", c, config[c]);
             if (c == "margin" || c == "arcRadius") {
                 chart[c](config[c]);                
             } else if ((typeof(config[c]) === "object") && ! Array.isArray(config[c])) {       // sub config, 1 level
@@ -131,8 +127,7 @@ makeChart = function(session, object, chart) {
                            
     } else if (object.event == "saveAsPng") {
         logger.debug("Save " + object.plotId + " as PNG")
-        
-        saveSvgAsPng(document.getElementById(object.plotId).children[0], object.data.filename + ".png");
+        window.saveSvgAsPng(document.getElementById(object.plotId).children[0], object.data.filename + ".png");
 
     } else if (object.event == "replace") {
 
@@ -253,12 +248,28 @@ makeChart = function(session, object, chart) {
             JS2 = "window.Nvd3py.prototype." + Nvd3Functions.makeChart.lstrip() + "\n"
             JS3 = """
             window.nvd3py = new window.Nvd3py();
+            
+            // for compatibility with Zeppelin
             window.nvd3py.session = {};
             window.nvd3py.session.__functions = {};
             window.nvd3py.session.__functions.makeChart = window.nvd3py.makeChart;
+            
+            if(typeof(window.__nvd3_stat_debug) == "undefined") {
+                window.__nvd3_stat_debug = 0;  // no debug output
+            }
             """
             self.display_javascript(JS1 + JS2 + JS3)
-            
+
+            css = """
+            <style>
+            div.output_area img, div.output_area svg {
+                max-width: 100%;
+                height: 100%;
+            }
+            </style>
+            """
+            self.display_html(css)
+
  
     def display_html(self, html):
         if isZeppelin:
@@ -284,7 +295,7 @@ makeChart = function(session, object, chart) {
             self.display_javascript(js)
 
  
-    def send(self, funcName, event, data, divId, delay=200):
+    def call(self, funcName, event, data, divId, delay=200):
         if isZeppelin:
             self.session.call(funcName, {"event":event, "data": data, "plotId":"%s" % divId}, delay)
         else:
@@ -310,7 +321,7 @@ makeChart = function(session, object, chart) {
                 console.log("loaded d3", window.d3)
 
                 require(["saveSvg"], function(saveSvgAsPng) {
-                    window.saveSvgAsPng = saveSvgAsPng
+                    window.saveSvgAsPng = saveSvgAsPng.saveSvgAsPng
                     console.log("loaded saveSvgAsPng", window.saveSvgAsPng);
 
                     $.getScript("https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.js", function() {

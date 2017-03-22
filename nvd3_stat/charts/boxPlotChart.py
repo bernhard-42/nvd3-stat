@@ -35,10 +35,7 @@ class BoxPlotChart(Nvd3Chart):
     def convert(self, data, keys=None, boxStyle="iqr"):
         """
         Convert data to BoxPlotChart format
-        
-        Example:
-        Convert data to BoxPlotChart format
-        
+               
         Example:
             >>> df.head(3)
                     Series A  Series B  Series C  Series D   Series E

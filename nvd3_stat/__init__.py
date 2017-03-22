@@ -30,6 +30,7 @@ from .charts.parallelCoordinatesChart import ParallelCoordinatesChart
 from .charts.historicalBarChart       import HistoricalBarChart
 from .charts.candlestickBarChart      import CandlestickBarChart
 from .charts.ohlcBarChart             import OhlcBarChart
+from .charts.bulletChart              import BulletChart
 
 
 class Nvd3(object):
@@ -37,16 +38,6 @@ class Nvd3(object):
     def __init__(self, downloadAsPng=True):
         self.nvd3Functions = Nvd3Functions()
         self.registeredCharts = {}
-
-        css = """
-        <style>
-        div.output_area img, div.output_area svg {
-            max-width: 100%;
-            height: 100%;
-        }
-        </style>
-        """
-        self.nvd3Functions.display_html(css)
         
 
     def reloadNVD3(self, nvd3version="1.8.5", d3version="3.5.17"):
@@ -113,6 +104,10 @@ class Nvd3(object):
     def historicalBarChart(self):
         self.register(HistoricalBarChart.funcName, HistoricalBarChart.funcBody)
         return HistoricalBarChart(self.nvd3Functions)
+
+    def bulletChart(self):
+        self.register(BulletChart.funcName, BulletChart.funcBody)
+        return BulletChart(self.nvd3Functions)
 
 
     # Source: http://d3js.org

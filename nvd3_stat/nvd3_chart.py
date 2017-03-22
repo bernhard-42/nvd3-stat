@@ -32,8 +32,8 @@ class Nvd3Chart(object):
         return "%s-%03d" % (self.funcName, Nvd3Chart._plotId) 
         
 
-    def _send(self, event, delay, divId, data):
-        self.nvd3Functions.send(self.funcName, event, data, divId, delay)
+    def _call(self, event, delay, divId, data):
+        self.nvd3Functions.call(self.funcName, event, data, divId, delay)
 
 
     def _identifyData(self, data):
@@ -102,7 +102,7 @@ class Nvd3Chart(object):
         for dataConfig, divId, width in zip(dataConfigs, self.divIds, _widths):
             dataConfig2 = self.deNumpy(dataConfig)
             self.data.append(dataConfig2["data"])
-            self._send("plot", self.delay, divId, dataConfig2)
+            self._call("plot", self.delay, divId, dataConfig2)
 
 
     def plot(self, dataConfig):
@@ -115,7 +115,7 @@ class Nvd3Chart(object):
     def replace(self, dataConfig, chart=0):
         data = dataConfig["data"]
         self.data[chart] = data
-        self._send("replace", 0, data, 0)
+        self._call("replace", 0, data, 0)
     
         
     def append(self, dataConfig, chart=0):                              # needs to do the same as the javascript part
@@ -143,7 +143,7 @@ class Nvd3Chart(object):
         else:
             raise(ValueError('Unknown data type'))
 
-        self._send("append", 0, self.divIds[chart], newData)
+        self._call("append", 0, self.divIds[chart], newData)
     
             
     def update(self, rowIndices, dataConfig, chart=0):              # needs to do the same as the javascript part
@@ -163,7 +163,7 @@ class Nvd3Chart(object):
         else:
             _updateData(self.data[chart], rowIndices, changedData)
             
-        self._send("update", 0, self.divIds[chart], {"rowIndices":rowIndices, "changedData":changedData})
+        self._call("update", 0, self.divIds[chart], {"rowIndices":rowIndices, "changedData":changedData})
 
         
     def delete(self, rowIndices, chart=0):                          # needs to do the same as the javascript part
@@ -179,10 +179,10 @@ class Nvd3Chart(object):
         else:
             _deleteData(self.data[chart], rowIndices)
             
-        self._send("delete", 0, self.divIds[chart], {"rowIndices":sortedIndices})
+        self._call("delete", 0, self.divIds[chart], {"rowIndices":sortedIndices})
         
 
     def saveAsPng(self, filename=None, chart=0):
         if filename is None:
             filename = self.divIds[chart]
-        self._send("saveAsPng", 0, self.divIds[chart], {"filename":filename})
+        self._call("saveAsPng", 0, self.divIds[chart], {"filename":filename})

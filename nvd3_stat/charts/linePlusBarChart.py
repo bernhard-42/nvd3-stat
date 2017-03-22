@@ -24,7 +24,7 @@ class LinePlusBarChart(Nvd3Chart):
     
             var chart = nv.models.linePlusBarChart()
                       .margin({bottom: 50, left: 70, right:50})
-    
+      
             chart.xAxis.showMaxMin(false)
                        .tickFormat(d3.format(',.1f'))
     
