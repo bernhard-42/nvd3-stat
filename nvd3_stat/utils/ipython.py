@@ -56,7 +56,8 @@ def loadNVD3(nvd3version="1.8.5", d3version="3.5.17"):
 
     js = """
     require.config({ paths: {d3:      "http://d3js.org/d3.v3.min",
-                             saveSvg: "http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng"} });
+                             saveSvg: "https://rawgit.com/bernhard-42/saveSvgAsPng/gh-pages/saveSvgAsPng.js"} });
+//                             saveSvg: "http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng"} });
     require(["d3"], function(d3) {
         window.d3 = d3;
         console.log("loaded d3", window.d3)
