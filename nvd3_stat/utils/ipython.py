@@ -20,10 +20,11 @@ class IPythonSession(object):
 
     def __init__(self):
         js = """
-        window.nvd3py = new window.Nvd3py();
-        window.nvd3py.session = {};
-        window.nvd3py.session.__functions = {};
-        """
+            window.Nvd3py = function() {};
+            window.nvd3py = new window.Nvd3py();
+            window.nvd3py.session = {};
+            window.nvd3py.session.__functions = {};
+            """
         display_javascript(Javascript(js))
 
         css = """
@@ -37,11 +38,11 @@ class IPythonSession(object):
         display_html(HTML(css))
             
 
-    def registerFunction(self, dummy, func):
+    def registerFunction(self, funcName, func):
         js = """
         window.Nvd3py.prototype.%s;
-        window.nvd3py.session.__functions.makeChart = window.nvd3py.makeChart;
-        """ % func
+        window.nvd3py.session.__functions.%s = window.nvd3py.%s;
+        """ % (func, funcName, funcName)
         display_javascript(Javascript(js))
 
 
