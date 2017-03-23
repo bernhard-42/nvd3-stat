@@ -95,7 +95,7 @@ class Nvd3Chart(object):
             </div>
             """ % (divId, self.height, width)
         html = html + "</div>"
-        self.nvd3Functions.display_html(html)
+        self.nvd3Functions.display(html=html)
 
         # And finally plot the charts
 

@@ -15,12 +15,12 @@
 from IPython import get_ipython
 
 if get_ipython() is None:
-    from zeppelin_session import ZeppelinSession
+    from zeppelin_session import ZeppelinSession as Session
+    from .utils.zeppelin import  Javascript, display_javascript, HTML, display_html, loadNVD3
     isZeppelin = True
 else:
-    from IPython.display import Javascript, display_javascript
-    from IPython.display import HTML, display_html    
-    import json
+    from IPython.display import Javascript, display_javascript, HTML, display_html
+    from .utils.ipython import IPythonSession as Session, loadNVD3
     isZeppelin = False
 
 
@@ -235,106 +235,32 @@ makeChart = function(session, object, chart) {
 """
 
     def __init__(self):
-        if isZeppelin:
-            self.session = ZeppelinSession()
-            self.session.registerFunction("makeChart", Nvd3Functions.makeChart)
-        else:
-            JS1 = """
-            window.Nvd3py = function() {
-                this.session = {}
-                console.log("nvd3py is initialized");
-            }
-            """
-            JS2 = "window.Nvd3py.prototype." + Nvd3Functions.makeChart.lstrip() + "\n"
-            JS3 = """
-            window.nvd3py = new window.Nvd3py();
-            
-            // for compatibility with Zeppelin
-            window.nvd3py.session = {};
-            window.nvd3py.session.__functions = {};
-            window.nvd3py.session.__functions.makeChart = window.nvd3py.makeChart;
-            
-            if(typeof(window.__nvd3_stat_debug) == "undefined") {
-                window.__nvd3_stat_debug = 0;  // no debug output
-            }
-            """
-            self.display_javascript(JS1 + JS2 + JS3)
+        self.session = Session()
+        self.session.registerFunction("makeChart", Nvd3Functions.makeChart.lstrip())
 
-            css = """
-            <style>
-            div.output_area img, div.output_area svg {
-                max-width: 100%;
-                height: 100%;
-            }
-            </style>
-            """
-            self.display_html(css)
-
- 
-    def display_html(self, html):
-        if isZeppelin:
-            print("%html")
-            print(html)
-        else:
-            display_html(HTML(html))
-
- 
-    def display_javascript(self, js):
-        if isZeppelin:
-            print("%html")
-            print("<script>%s</script>" % js)
-        else:
-            display_javascript(Javascript(js))
+        js = """
+        if(typeof(window.__nvd3_stat_debug) == "undefined") {
+            window.__nvd3_stat_debug = 0;  // no debug output
+        }
+        console.info("nvd3py is initialized");
+        """
+        display_javascript(Javascript(js))
 
 
-    def register(self, funcName, funcCode):
-        if isZeppelin:
-            self.session.registerFunction(funcName, "%s = %s" % (funcName, funcBody)) 
-        else:
-            js = "window.Nvd3py.prototype." + funcName.lstrip() + " = " + funcCode
-            self.display_javascript(js)
+    def register(self, funcName, funcBody):
+        self.session.registerFunction(funcName, "%s = %s" % (funcName.lstrip(), funcBody)) 
 
  
     def call(self, funcName, event, data, divId, delay=200):
-        if isZeppelin:
-            self.session.call(funcName, {"event":event, "data": data, "plotId":"%s" % divId}, delay)
-        else:
-            payload = json.dumps({"event":event, "data": data, "plotId":"%s" % divId})
-            self.display_javascript("window.nvd3py." + funcName + "(window.nvd3py.session, " + payload + ")")
+        self.session.call(funcName, {"event":event, "data": data, "plotId":"%s" % divId}, delay)
 
 
     def reloadNVD3(self, nvd3version="1.8.5", d3version="3.5.17"):
-        if isZeppelin:
-            html = """
-                <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css" rel="stylesheet">
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.js"></script>
-                <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css" rel="stylesheet">
-                <script src="http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng.js" type="text/javascript"></script>
-            """ % (d3version, nvd3version, nvd3version)
-            self.display_html(html)
-        else:
-            js = """
-            require.config({ paths: {d3:      "http://d3js.org/d3.v3.min",
-                                     saveSvg: "http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng"} });
-            require(["d3"], function(d3) {
-                window.d3 = d3;
-                console.log("loaded d3", window.d3)
+        loadNVD3(nvd3version, d3version)
 
-                require(["saveSvg"], function(saveSvgAsPng) {
-                    window.saveSvgAsPng = saveSvgAsPng.saveSvgAsPng
-                    console.log("loaded saveSvgAsPng", window.saveSvgAsPng);
 
-                    $.getScript("https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.js", function() {
-                        $('<link/>', {
-                           rel: 'stylesheet',
-                           type: 'text/css',
-                           href: 'https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.5/nv.d3.css'
-                        }).appendTo('head');
-                        console.log("loaded nvd3", window.nv)
-                    })
-                })
-            });
-            """
-
-            self.display_javascript(js)
-
+    def display(self, html=None, js=None):
+        if js is not None:
+            display_javascript(Javascript(js))
+        if html is not None:
+            display_html(HTML(html))

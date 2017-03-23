@@ -40,7 +40,7 @@ class LineChart(Nvd3Chart):
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
         style = "<style>.dashed { stroke-dasharray: 7,7; }\n.dotted { stroke-dasharray: 3,3; } </style>"
-        nvd3Functions.display_html(style)
+        nvd3Functions.display(html=style)
 
 
     def convert(self, data, key=None, values=None, lineAttributes={}):
