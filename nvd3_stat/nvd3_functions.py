@@ -29,6 +29,7 @@ class Nvd3Functions(object):
     makeChart = """
         
 makeChart = function(session, object, chart) {
+
     var cacheId = "__nv__chart_cache_" + object.plotId;
 
     var Logger = function(name) {
@@ -127,11 +128,11 @@ makeChart = function(session, object, chart) {
                            
     } else if (object.event == "saveAsPng") {
         logger.debug("Save " + object.plotId + " as PNG")
-        window.saveSvgAsPng(document.getElementById(object.plotId).children[0], object.data.filename + ".png");
+        window.saveSvgAsPng(document.getElementById(object.plotId).children[0], object.data.filename + ".png", {backgroundColor: object.data.backgroundColor});
 
     } else if (object.event == "replace") {
-
         var data = JSON.parse(JSON.stringify(object.data));  // clone data
+
 
         session[cacheId].data = data;
         var chart = session[cacheId].chart;

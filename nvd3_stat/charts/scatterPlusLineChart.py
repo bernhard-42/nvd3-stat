@@ -113,7 +113,7 @@ class ScatterPlusLineChart(Nvd3Chart):
         if isinstance(data, (list, tuple)):
             for d in data:
                 line = self.convert(data=d["data"], keys=d["keys"], values=d["values"],
-                                    lines=d["lines"], pointAttributes=d["pointAttributes"])
+                                    lines=d.get("lines"), pointAttributes=d.get("pointAttributes"))
                 nvd3Data.append(line[0])
         else:
             shapes = pointAttributes.get("shapes")
@@ -122,11 +122,11 @@ class ScatterPlusLineChart(Nvd3Chart):
             df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
             if (isinstance(values, (list, tuple))):
                 if shapes is None:
-                    shapes = [None]*len(data)
+                    shapes = [None]*len(values)
                 if sizes is None:
-                    sizes = [None]*len(data)
+                    sizes = [None]*len(values)
                 if lines is None:
-                    lines = [None]*len(data)
+                    lines = [None]*len(values)
             else:
                 keys = [keys]
                 values = [values]

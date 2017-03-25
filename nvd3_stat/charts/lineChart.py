@@ -97,10 +97,13 @@ class LineChart(Nvd3Chart):
         if isinstance(data, (list, tuple)):
             for d in data:
                 line = self.convert(data=d["data"], key=d["key"], values=d["values"],
-                                    lineAttributes=d["lineAttributes"])
+                                    lineAttributes=d.get("lineAttributes"))
                 nvd3Data.append(line[0])
         else:
             df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
+
+            if lineAttributes is None:
+                lineAttributes = {}
 
             if not isinstance(values, (list, tuple)):
                 values = [values]

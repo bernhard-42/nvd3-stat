@@ -115,7 +115,7 @@ class Nvd3Chart(object):
     def replace(self, dataConfig, chart=0):
         data = dataConfig["data"]
         self.data[chart] = data
-        self._call("replace", 0, data, 0)
+        self._call("replace", 0, self.divIds[chart], data)
     
         
     def append(self, dataConfig, chart=0):                              # needs to do the same as the javascript part
@@ -182,7 +182,7 @@ class Nvd3Chart(object):
         self._call("delete", 0, self.divIds[chart], {"rowIndices":sortedIndices})
         
 
-    def saveAsPng(self, filename=None, chart=0):
+    def saveAsPng(self, filename=None, chart=0, backgroundColor="transparent"):
         if filename is None:
             filename = self.divIds[chart]
-        self._call("saveAsPng", 0, self.divIds[chart], {"filename":filename})
+        self._call("saveAsPng", 0, self.divIds[chart], {"filename":filename, "backgroundColor":backgroundColor})

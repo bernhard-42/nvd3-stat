@@ -49,6 +49,10 @@ class Nvd3(object):
             self.registeredCharts[funcName] = True
 
 
+    def createDataConfig(self, data, config={}):
+        return ({"data":data, "config":config})
+
+
     def boxPlotChart(self):
         self.register(BoxPlotChart.funcName, BoxPlotChart.funcBody)
         return BoxPlotChart(self.nvd3Functions)

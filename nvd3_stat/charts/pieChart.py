@@ -26,7 +26,7 @@ class PieChart(Nvd3Chart):
                 .growOnHover(true)
                 .labelType('value')
                 .legendPosition('top')
-                .showTooltipPercent(true)
+//                .showTooltipPercent(true)
 
            session.__functions.makeChart(session, object, chart);
         }        

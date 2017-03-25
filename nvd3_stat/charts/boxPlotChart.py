@@ -22,7 +22,7 @@ class BoxPlotChart(Nvd3Chart):
     funcBody = """
         function(session, object) {
             var chart = nv.models.boxPlotChart()
-                        .x(function(d) { return d.label })
+                        .x(function(d) { return d.key })
 
             session.__functions.makeChart(session, object, chart);
         }      
@@ -30,6 +30,9 @@ class BoxPlotChart(Nvd3Chart):
 
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.df = None
+        self.keys = None
+        self.boxStyle = None
 
 
     def convert(self, data, keys=None, boxStyle="iqr"):
@@ -73,7 +76,11 @@ class BoxPlotChart(Nvd3Chart):
         """                
 
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
- 
+        
+        self.df = df
+        self.keys = keys
+        self.boxStyle = boxStyle
+
         if keys is not None:
             df = df[keys]
 
@@ -89,7 +96,7 @@ class BoxPlotChart(Nvd3Chart):
             low  = df.min()
             high = df.max()
             
-        data =  [{"label":df.columns[i],
+        data =  [{"key":df.columns[i],
                   "values":{"whisker_low":low[i], "Q1":q1[i], "Q2":q2[i], "Q3": q3[i], "whisker_high":high[i]}}
                  for i in range(len(df.columns))] 
          
@@ -101,11 +108,18 @@ class BoxPlotChart(Nvd3Chart):
 
         return data
     
+
     def append(self, dataConfig, chart=0):
-        print("Not supported")
+         df = dataConfig["data"] if isinstance(dataConfig["data"], pd.DataFrame) else pd.DataFrame(dataConfig["data"])
+         self.df = pd.concat([self.df, df])
 
-    def update(self, rowIndices, dataConfig, chart=0):
-        print("Not supported")
+         data = self.convert(df, self.keys, self.boxStyle)
 
-    def delete(self, rowIndices, chart=0):
-        print("Not supported")
+         self.replace({"data":data, "config":dataConfig["config"]})
+
+
+    # def update(self, rowIndices, dataConfig, chart=0):
+    #     print("Not supported")
+
+    # def delete(self, rowIndices, chart=0):
+    #     print("Not supported")
