@@ -259,6 +259,11 @@ makeChart = function(session, object, chart) {
     def reloadNVD3(self, nvd3version="1.8.5", d3version="3.5.17"):
         loadNVD3(nvd3version, d3version)
 
+    def traceJs(self, on=True):
+        if on:
+            display_javascript(Javascript("__nvd3_stat_debug=2"))
+        else:
+            display_javascript(Javascript("__nvd3_stat_debug=0"))
 
     def display(self, html=None, js=None):
         if js is not None:
