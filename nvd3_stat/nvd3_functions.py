@@ -104,7 +104,11 @@ class Nvd3Functions(object):
 
             var data = object.data.data;
             var config = object.data.config;
-
+            var duration = 200;
+            if (typeof config.duration != "undefined") {
+                duration = config.duration
+            }
+            console.log("duration ", duration)
             var divId = "#" + object.plotId + " svg";
             session[cacheId] = {"data": data};
 
@@ -112,7 +116,11 @@ class Nvd3Functions(object):
                 try {
                     chart = configure(chart, config);
                     chartData = d3.select(divId).datum(JSON.parse(JSON.stringify(data)));
-                    chartData.transition().duration(500).call(chart);
+                    if (duration == 0) {
+                        chartData.call(chart);
+                    } else {
+                        chartData.transition().duration(duration).call(chart);
+                    }
                 } catch(err) {
                     console.error(err.message);
                 }
