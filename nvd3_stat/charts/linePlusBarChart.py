@@ -43,10 +43,14 @@ class LinePlusBarChart(Nvd3Chart):
     
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
-
-    def convert(self, data, key, lineValue, barValue):
+        self.key = []
+        self.lineValue = []
+        self.barValue = []
+    
+    def plot(self, data, key, lineValue, barValue, config={}):
         """
-        Convert data to LinePlusBarChart format
+        Create a LinePlusBarChart
+
         Example:
             >>> df.head(1)
                              Date    Price   Quantity
@@ -58,9 +62,7 @@ class LinePlusBarChart(Nvd3Chart):
                         "x2Axis":{"axisLabel":"x", "tickFormat":"%d-%m-%Y"}
                 }
                 
-            >>> data = lpb.convert(df, "Date", lineValue="Price", barValue="Quantity")
-                
-            >>> lpb.plot({"data":data, "config":config})
+            >>> lpb.plot(df, "Date", lineValue="Price", barValue="Quantity", config=config)
             
         Parameters
         ----------
@@ -79,16 +81,34 @@ class LinePlusBarChart(Nvd3Chart):
             Column name or dict key for values to used for line
         barValue : String
             Column name or dict key for values to used for bar
-            
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
+
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
-        
+            None        
         """
+
+        dataConfig = self.chart(data, key, lineValue, barValue, config=config)  
+        self._plot(dataConfig)
+
+
+    def convert(self, data, key, lineValue, barValue):
+        self.key.append(key)
+        self.lineValue.append(lineValue)
+        self.barValue.append(barValue)
+
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
         
         lineData = {"key":lineValue, "values":df.loc[:,[key, lineValue]].rename(str, {key:"x", lineValue:"y"}).to_dict("records")}
         barData =  {"key":barValue, "values":df.loc[:,[key, barValue ]].rename(str, {key:"x", barValue:"y"}).to_dict("records"), "bar": True}
         
-        return [lineData, barData]
+        return {"data": [lineData, barData]}
+
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, key=self.key[chart], lineValue=self.lineValue[chart], barValue=self.barValue[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
+
+

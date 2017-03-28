@@ -29,21 +29,27 @@ class BulletChart(Nvd3Chart):
 
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.title = []
+        self.subtitle = []
+        self.ranges = []
+        self.measure = []
+        self.markers = []
+        self.markerLines = []
 
 
-    def convert(self, title, subtitle, ranges, measure, markers, markerLines):
+    def plot(self, title, subtitle, ranges, measure, markers, markerLines, config={}):
         """
-        Convert data to BulletChart format
+        Create a BulletChart
         
         Example:
             >>> b = BulletChart(nv.nvd3Functions)
 
-            >>> data = b.convert(title="Satisfaction", subtitle="out of 5",
-                                 ranges={'Bad':3.5, 'OK':4.25, 'Good':5},
-                                 measure={'Current':3.9},
-                                 markers={'Previous':3.8},
-                                 markerLines={'Threshold':3.0, 'Target':4.4})
-            >>> b.plot({"data":data, "config":{}})
+            >>> data = b.plot(title="Satisfaction", subtitle="out of 5",
+                              ranges={'Bad':3.5, 'OK':4.25, 'Good':5},
+                              measure={'Current':3.9},
+                              markers={'Previous':3.8},
+                              markerLines={'Threshold':3.0, 'Target':4.4}
+                              config={})
 
         Parameters
         ----------
@@ -59,14 +65,27 @@ class BulletChart(Nvd3Chart):
             Line markers in the form {"markerLineName":value, ...}
         measure : dict
             Actual value in the form {"actualValueName": value}
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
 
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
+            None
         
-        """                
+        """
 
+        dataConfig = self.chart(title, subtitle, ranges, measure, markers, markerLines, config=config)    
+        self._plot(dataConfig)
+
+
+    def convert(self, title, subtitle, ranges, measure, markers, markerLines):
+        self.title.append(title)
+        self.subtitle.append(subtitle)
+        self.ranges.append(ranges)
+        self.measure.append(measure)
+        self.markers.append(markers)
+        self.markerLines.append(markerLines)
 
         data = {"title":title,
                 "subtitle":subtitle,
@@ -79,13 +98,4 @@ class BulletChart(Nvd3Chart):
                 "markerLines":list(markerLines.values()),
                 "markerLineLabels":list(markerLines.keys())}
 
-        return data
-    
-    def append(self, dataConfig, chart=0):
-        print("Not supported")
-
-    def update(self, rowIndices, dataConfig, chart=0):
-        print("Not supported")
-
-    def delete(self, rowIndices, chart=0):
-        print("Not supported")
+        return {"data":data}

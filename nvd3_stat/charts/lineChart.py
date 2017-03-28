@@ -39,13 +39,18 @@ class LineChart(Nvd3Chart):
 
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.key = []
+        self.values = []
+        self.lineAttributes = []
+
         style = "<style>.dashed { stroke-dasharray: 7,7; }\n.dotted { stroke-dasharray: 3,3; } </style>"
         nvd3Functions.display(html=style)
 
 
-    def convert(self, data, key=None, values=None, lineAttributes={}):
+    def plot(self, data, key=None, values=None, lineAttributes={}, config={}):
         """
-        Convert data to LineChart format
+        Create a LineChart
+        
         Example:
             >>> x1 = np.linspace(0, 4*np.pi, 100)
             >>> x2 = np.linspace(np.pi, 3*np.pi, 100)
@@ -56,16 +61,16 @@ class LineChart(Nvd3Chart):
             >>> l1 = LineChart(nv.nvd3Functions)
             
             Option 1:
-            >>> data = l1.convert([{"data":sin1, "key":"X", "values":"Sin", "lineAttributes":{"area":True, "fillOpacity":0.2, "style":"dashed"}}, 
-                                   {"data":cos1, "key":"X", "values":"Cos", "lineAttributes":{"style":"dotted"}}])
+            >>> l1.plot([{"data":sin1, "key":"X", "values":"Sin", "lineAttributes":{"area":True, "fillOpacity":0.2, "style":"dashed"}, config=config}, 
+                         {"data":cos1, "key":"X", "values":"Cos", "lineAttributes":{"style":"dotted"}, config=config}])
+            
             Option 2:
-            >>> data = l1.convert(data=sin, key="X", values=["Sin", "Cos"], 
-                                  lineAttributes={"area":[True,False], "fillOpacity":[0.2,0], "style":["dashed",None]})
+            >>> l1.plot(data=sin, key="X", values=["Sin", "Cos"], 
+                        lineAttributes={"area":[True,False], "fillOpacity":[0.2,0], "style":["dashed",None]},
+                        config=config)
             Option 3:
-            >>> data = l1.convert(data=sin, key="X", values="Sin", lineAttributes={"style":"dotted"})
-            
-            >>> l1.plot({"data":data, "config":{}})
-            
+            >>> l1.plot(data=sin, key="X", values="Sin", lineAttributes={"style":"dotted"}, config=config)
+                        
         Parameters
         ----------
         data : dict of lists / Pandas DataFrame or a list of dict of lists / Pandas DataFrame
@@ -86,12 +91,23 @@ class LineChart(Nvd3Chart):
             if "values" is list or {"area":True, "fillOpacity":0.2, "style":"dashed"} if "values" is a string
             The keys represent the value attribute for the lines, the value(s) reprentsthe setting.
             len(values) == len(attributes) for each lineAttribute
-            
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
+
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
+            None
         """
+
+        dataConfig = self.chart(data, key, values, lineAttributes, config=config)    
+        self._plot(dataConfig)
+
+
+    def convert(self, data, key=None, values=None, lineAttributes={}):
+        self.key. append(key)
+        self.values. append(values)
+        self.lineAttributes. append(lineAttributes)
 
         nvd3Data = []
         if isinstance(data, (list, tuple)):
@@ -116,5 +132,10 @@ class LineChart(Nvd3Chart):
     
                 nvd3Data.append(line)
 
-        return nvd3Data 
-        
+        return {"data": nvd3Data} 
+     
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, self.key[chart], self.values[chart], self.lineAttributes[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
+

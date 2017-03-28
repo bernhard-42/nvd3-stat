@@ -30,14 +30,15 @@ class BoxPlotChart(Nvd3Chart):
 
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
-        self.df = None
-        self.keys = None
-        self.boxStyle = None
+        self.df = []
+        self.keys = []
+        self.boxStyle = []
 
 
-    def convert(self, data, keys=None, boxStyle="iqr"):
+
+    def plot(self, data, keys=None, boxStyle="iqr", config={}):
         """
-        Convert data to BoxPlotChart format
+        Create a BoxPlotChart
                
         Example:
             >>> df.head(3)
@@ -48,8 +49,7 @@ class BoxPlotChart(Nvd3Chart):
 
             >>> bp = nv.boxPlotChart()
             >>> config = {"height": 400, "width":400, "yDomain":[-5, 25], "maxBoxWidth":False, "color":nv.c10()}
-            >>> data = bp.convert(bp_df, ["Series A", "Series B", "Series D"], boxStyle="iqr")
-            >>> bp.plot({"data":data, "config":config})
+            >>> bp.plot(bp_df, ["Series A", "Series B", "Series D"], boxStyle="iqr", config=config)
 
         Parameters
         ----------
@@ -67,19 +67,26 @@ class BoxPlotChart(Nvd3Chart):
         boxStyle : string
             'iqr':     low whisker = q1-1.5*iqr,  high whisker = q3+1.5*iqr (iq5 = q3-q1)
             'min-max': low whisker = min,         high whisker = max
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
 
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
-        
-        """                
+            None
+            
+        """
 
+        dataConfig = self.chart(data, keys, boxStyle, config=config)
+        self._plot(dataConfig)
+
+
+    def convert(self, data, keys=None, boxStyle="iqr"):
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
         
-        self.df = df
-        self.keys = keys
-        self.boxStyle = boxStyle
+        self.df.append(df)
+        self.keys.append(keys)
+        self.boxStyle.append(boxStyle)
 
         if keys is not None:
             df = df[keys]
@@ -96,30 +103,24 @@ class BoxPlotChart(Nvd3Chart):
             low  = df.min()
             high = df.max()
             
-        data =  [{"key":df.columns[i],
-                  "values":{"whisker_low":low[i], "Q1":q1[i], "Q2":q2[i], "Q3": q3[i], "whisker_high":high[i]}}
-                 for i in range(len(df.columns))] 
+        nvd3Data =  [{"key":df.columns[i],
+                      "values":{"whisker_low":low[i], "Q1":q1[i], "Q2":q2[i], "Q3": q3[i], "whisker_high":high[i]}}
+                     for i in range(len(df.columns))] 
          
         # Add outliers
         if boxStyle == "iqr":
             for i in range(len(df.columns)):
                 values = df.iloc[:,i]
-                data[i]["values"]["outliers"] = list(values[(values < q1[i]-1.5*iqr[i]) | (values > q3[i]+1.5*iqr[i])])
+                nvd3Data[i]["values"]["outliers"] = list(values[(values < q1[i]-1.5*iqr[i]) | (values > q3[i]+1.5*iqr[i])])
 
-        return data
+        return {"data": nvd3Data}
     
 
-    def append(self, dataConfig, chart=0):
-         df = dataConfig["data"] if isinstance(dataConfig["data"], pd.DataFrame) else pd.DataFrame(dataConfig["data"])
-         self.df = pd.concat([self.df, df])
+    def append(self, data, chart=0):
+         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
+         self.df[chart] = pd.concat([self.df[chart], df])
 
-         data = self.convert(df, self.keys, self.boxStyle)
+         dataConfig = self.chart(self.df[chart], keys=self.keys[chart], boxStyle=self.boxStyle[chart], config=self.config[chart]) 
+        
+         self._replace(dataConfig, chart=chart)
 
-         self.replace({"data":data, "config":dataConfig["config"]})
-
-
-    # def update(self, rowIndices, dataConfig, chart=0):
-    #     print("Not supported")
-
-    # def delete(self, rowIndices, chart=0):
-    #     print("Not supported")

@@ -33,10 +33,13 @@ class DiscreteBarChart(Nvd3Chart):
 
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
-
-    def convert(self, data, key, value):
+        self.key = []
+        self.value = []
+ 
+ 
+    def plot(self, data, key, value, config={}):
         """
-        Convert data to DiscreteBarChart format
+        Create a DiscreteBarChart
         
         Example:
             >>> df.head(3)
@@ -48,10 +51,8 @@ class DiscreteBarChart(Nvd3Chart):
             >>> db = nv.discreteBarChart()
 
             >>> config={"height": 350, "width": 500, "color": nv.c20(), "yDomain":[0,12]}
-            >>> data = db.convert(df, key="Series", value="Mean")
+            >>> db.plot(df, key="Series", value="Mean",config=config)
                 
-            >>> db.plot({"data":data, "config":config})
-
         Parameters
         ----------
         data : dict of lists or Pandas DataFrame 
@@ -67,16 +68,32 @@ class DiscreteBarChart(Nvd3Chart):
             Name of column holding value names
         value : string
             Name of column holding the values
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
 
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format        
+            None
         """
-        
+
+        dataConfig = self.chart(data, key, value, config=config)    
+        self._plot(dataConfig)
+      
+
+    def convert(self, data, key, value):
+        self.key.append(key)
+        self.value.append(value)
+ 
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
         
-        nvd3Data = df.loc[:,[key, value]].rename(str, {key:"x", value:"y"}).to_dict("records")
+        nvd3Data = [{"key":key, 
+                     "values":df.loc[:,[key, value]].rename(str, {key:"x", value:"y"}).to_dict("records")}]
 
-        return [{"key":key, "values":nvd3Data}] 
+        return {"data": nvd3Data}
+
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, key=self.key[chart], value=self.value[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
 

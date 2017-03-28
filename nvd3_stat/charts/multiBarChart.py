@@ -40,25 +40,27 @@ class MultiBarChart(Nvd3Chart):
     
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.key = []
+        self.values = []
 
-    def convert(self, data, key, values):
+    
+    def plot(self, data, key, values, config={}):
         """
-        Convert data to MultiBarChart format
+        Create a MultiBarChart
+
         Example:
             >>> x = np.linspace(0, 4*np.pi, 10)
                 df = pd.DataFrame({"X":x*100, "Sin":np.sin(x), "Cos":np.cos(x), "ArcTan":np.arctan(x-2*np.pi)/3})
             
             >>> mb = nv.multiBarChart()
 
-            >>> data = mb.convert(l1_df, "X", ["Sin", "Cos", "ArcTan"], keyAttributes)
-                
             >>> config={"height":400, "width": 1000,
                         "focusEnable": False, "color":nv.c10()[::2], 
                         "yAxis": {"axisLabel":"F(X)", "tickFormat":",.1f"}, 
                         "xAxis":{"axisLabel":"X", "tickFormat":",.1f"}}
                         
-            >>> mb.plot({"data":data, "config":config})
-            
+            >>> mb.plot(l1_df, "X", ["Sin", "Cos", "ArcTan"], keyAttributes, config=config)
+                
         Parameters
         ----------
         data : dict of lists or Pandas DataFrame 
@@ -74,18 +76,34 @@ class MultiBarChart(Nvd3Chart):
             Column name or dict key for values to be used for the x axis
         values : list of strings
             Column names or dict keys for values to be used for the bars
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
 
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
+            None
         """
 
+        dataConfig = self.chart(data, key, values, config=config)    
+        self._plot(dataConfig)
+
+ 
+    def convert(self, data, key, values):
+        self.key.append(key)
+        self.values.append(values)
+ 
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 
         nvd3Data = []
         for i in range(len(values)):
             nvd3Data.append({"key":values[i], "values":df.loc[:,[key, values[i]]].rename(str,{key:"x", values[i]:"y"}).to_dict("records")})
 
-        return nvd3Data 
+        return {"data":nvd3Data} 
+
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, key=self.key[chart], values=self.values[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
+
 

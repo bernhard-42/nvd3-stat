@@ -21,12 +21,19 @@ class Nvd3Chart(object):
 
     def __init__(self, nvd3Functions):
         self.id = 0
+
         self.data = []
+        self.config = []
+
         self.divIds = []
         self.nvd3Functions = nvd3Functions
+
         self.width = 1024
         self.height = 400
         self.delay = 200
+        self.horizontal = False
+        self.vertical = False
+        self.gap = 15
 
     def _divId(self):
         return "%s-%03d" % (self.funcName, Nvd3Chart._plotId) 
@@ -58,7 +65,7 @@ class Nvd3Chart(object):
         return {k:(self._deNumpy(v) if k=="data" else v) for k,v in dataConfig.items()}
         
 
-    def _plot(self, dataConfigs):
+    def _plotAll(self, dataConfigs):
 
         # Define widths and heights
 
@@ -83,17 +90,26 @@ class Nvd3Chart(object):
         if _height > 0:
             self.height = _height
 
+        overallHeight = self.height
+        if self.vertical:
+            self.height = self.height + self.gap
+            style = "margin-bottom: %dpx;" % self.gap
+            overallHeight = len(dataConfigs) * self.height
+
         self.width = sum(_widths)
         
+        style = ""
         # Print the divs as float:left
-        
-        html = """<div style="height:%dpx; width:%dpx">""" %  (self.height, self.width)
+        if self.horizontal:
+            style = "float:left;"
+
+        html = """<div style="height:%dpx; width:%dpx">""" %  (overallHeight, self.width)
         for divId, width in zip(self.divIds, _widths):
             html = html + """
-            <div id="%s" class="with-3d-shadow with-transitions" style="float:left; height:%dpx; width:%dpx">
+            <div id="%s" class="with-3d-shadow with-transitions" style="%s height:%dpx; width:%dpx">
                 <svg></svg>
             </div>
-            """ % (divId, self.height, width)
+            """ % (divId, style, self.height, width)
         html = html + "</div>"
         self.nvd3Functions.display(html=html)
 
@@ -101,24 +117,48 @@ class Nvd3Chart(object):
 
         for dataConfig, divId, width in zip(dataConfigs, self.divIds, _widths):
             dataConfig2 = self.deNumpy(dataConfig)
-            self.data.append(dataConfig2["data"])
             self._call("plot", self.delay, divId, dataConfig2)
 
-
-    def plot(self, dataConfig):
+    
+    def _plot(self, dataConfig):
         if isinstance(dataConfig, list):
-            self._plot(dataConfig)
+            self._plotAll(dataConfig)
         else:
-            self._plot([dataConfig])
+            self._plotAll([dataConfig])
 
 
-    def replace(self, dataConfig, chart=0):
+    def chart(self, *args, **kwargs):
+        config = kwargs.get("config")
+        if config is None:
+            config = {}
+            kw = kwargs
+        else:
+            kw = {k:v for k,v in kwargs.items() if k != "config"}
+
+        data = self.convert(*args, **kw)
+        self.data.append(data["data"])
+        self.config.append(config)
+
+        return dict(config=config, **data)
+
+
+    def hplot(self, dataConfigs):
+        self.horizontal = True
+        self._plot(dataConfigs)
+
+
+    def vplot(self, dataConfigs):
+        self.vertical = True
+        self._plot(dataConfigs)
+
+
+    def _replace(self, dataConfig, chart=0):
         data = dataConfig["data"]
         self.data[chart] = data
         self._call("replace", 0, self.divIds[chart], data)
     
         
-    def append(self, dataConfig, chart=0):                              # needs to do the same as the javascript part
+    def _append(self, dataConfig, chart=0):                              # needs to do the same as the javascript part
         newData = self._deNumpy(dataConfig["data"])
 
         def _appendData(dataType, data, newData):

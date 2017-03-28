@@ -37,10 +37,13 @@ class StackedAreaChart(Nvd3Chart):
     
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.key = []
+        self.values = []
 
-    def convert(self, data, key, values):
+    def plot(self, data, key, values, config={}):
         """
-        Convert data to StackedAreaChart format
+        Create a StackedAreaChart
+
         Example:
             >>> x= np.linspace(0, 4*np.pi, 100)
                 df = pd.DataFrame({"X":x*100, "Sin":np.sin(x), "Cos":np.cos(x), "ArcTan":np.arctan(x-2*np.pi)/3})
@@ -54,8 +57,7 @@ class StackedAreaChart(Nvd3Chart):
             >>> config={"xAxis":{"tickFormat":"%d/%m/%Y"},
                         "color": nv.c20(), "height":300}
                 
-            >>> data = sa.convert(sa_df, "Date", seriesNames)
-            >>> sa.plot({"data":data, "config":config})
+            >>> data = sa.plot(sa_df, "Date", seriesNames, config=config)
             
         Parameters
         ----------
@@ -72,13 +74,22 @@ class StackedAreaChart(Nvd3Chart):
             Column name or dict key for values to be used for the x axis
         values : list of strings
             Column names or dict keys for values to be used for the stacked areas
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
 
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
+            None
         """
 
+        dataConfig = self.chart(data, key, values, config=config)    
+        self._plot(dataConfig)
+
+
+    def convert(self, data, key, values):
+        self.key.append(key)
+        self.values.append(values)
 
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
         
@@ -87,4 +98,11 @@ class StackedAreaChart(Nvd3Chart):
             line = {"key":values[i], "values":df.loc[:,[key, values[i]]].rename(str,{key:"x", values[i]:"y"}).to_dict("records")}
             nvd3Data.append(line)
 
-        return nvd3Data #
+        return {"data":nvd3Data}
+
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, key=self.key[chart], values=self.values[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
+
+

@@ -36,10 +36,16 @@ class ParallelCoordinatesChart(Nvd3Chart):
     
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.key = []
+        self.values = []
+        self.dimAttributes = []
+        self.lineAttributes = []
 
-    def convert(self, data, key, values, dimAttributes, lineAttributes={}, config={}):
+    
+    def plot(self, data, key, values, dimAttributes, lineAttributes={}, config={}):
         """
-        Convert data to ParallelCoordinatesChart format
+        Create a ParallelCoordinatesChart
+
         Example:
             >>> iris.loc[iris.Name=="Iris-setosa",     "color"] = nv.c10()[0]
             >>> iris.loc[iris.Name=="Iris-versicolor", "color"] = nv.c10()[1]
@@ -49,14 +55,15 @@ class ParallelCoordinatesChart(Nvd3Chart):
  
                     SepalLength  SepalWidth  PetalLength  PetalWidth         Name    color  strokeWidth
                 0          5.1         3.5          1.4         0.2  Iris-setosa  #1f77b4          0.5           
+
             >>> pc = nv.parallelCoordinatesChart()
 
             >>> config = {"height": 600}
             
-            >>> data, dim = pc.convert(iris, 'Name', ['SepalLength', 'SepalWidth', 'PetalLength', 'PetalWidth'],
-                                   lineAttributes=["color", "strokeWidth"], 
-                                   dimAttributes= {"format": [",.1f", ",.1f", ",.1f", ",.1f"]})
-            >>> pc.plot({"data":data, "dim":dim, "config":config})    
+            >>> pc.plot(iris, 'Name', ['SepalLength', 'SepalWidth', 'PetalLength', 'PetalWidth'],
+                        lineAttributes=["color", "strokeWidth"], 
+                        dimAttributes= {"format": [",.1f", ",.1f", ",.1f", ",.1f"]}
+                        config=config)
             
         Parameters
         ----------
@@ -77,13 +84,25 @@ class ParallelCoordinatesChart(Nvd3Chart):
             Column names or dict keys for values to be used as "color" and "strokeWidth" attributes for lines
         dimAttributes: dict
             Dict with a list for the format of each dimension
-            
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
+
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
+            None
         """
-        
+ 
+        dataConfig = self.chart(data, key, values, dimAttributes, lineAttributes, config=config)    
+        self._plot(dataConfig)
+
+       
+    def convert(self, data, key, values, dimAttributes, lineAttributes={}):
+        self.key.append(key)
+        self.values.append(values)
+        self.dimAttributes.append(dimAttributes)
+        self.lineAttributes.append(lineAttributes)
+
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
          
         values2 = df.loc[:, values].to_dict("records")
@@ -91,10 +110,10 @@ class ParallelCoordinatesChart(Nvd3Chart):
 
         for v, n in zip (values2, nvd3Data):
             n["values"] = v
-
+                
         attributes = {"key":values}
         attributes.update(dimAttributes)
         dim = pd.DataFrame(attributes).to_dict("records")
-                
-        return (nvd3Data, dim)
+
+        return {"data": nvd3Data, "dim":dim}
 

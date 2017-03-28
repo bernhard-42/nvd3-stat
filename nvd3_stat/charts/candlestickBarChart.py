@@ -40,10 +40,14 @@ class CandlestickBarChart(Nvd3Chart):
     
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.key = []
+        self.value = []
+        self.ohlcAttributes = []
 
-    def convert(self, data, key, value, ohlcAttributes={}):
+
+    def plot(self, data, key, value, ohlcAttributes={}, config={}):
         """
-        Convert data to CandlestickBarChart format
+        Create a CandlestickBarChart
 
         Example:
             >>> df.head(1)
@@ -52,13 +56,12 @@ class CandlestickBarChart(Nvd3Chart):
             
             >>> cs = nv.candlestickBarChart()
             >>> ohlcAttributes = {"open":"Open" ,"high":"High" ,"low":"Low" ,"volume":"Volume" ,"adjusted":"Adj_Close"}
-            >>> data = cs.convert(df, "Timestamp", "Close", ohlcAttributes)
-
             >>> config = {"color":nv.c20(), width":1400, "height":800,
                           "xAxis":{"tickFormat":"%d/%m/%Y", "axisLabel":"Date (d/m/y)"},
                           "yAxis":{"axisLabel": Close (USD)"}}
 
-            >>> cs.plot({"data":data, "config":config})
+            >>> cs.plot(df, "Timestamp", "Close", ohlcAttributes, config=config)
+
             
         Parameters
         ----------
@@ -78,17 +81,31 @@ class CandlestickBarChart(Nvd3Chart):
         ohlcAttributes : dict
             A dict of attributes: {"open":"Open" ,"high":"High" ,"low":"Low" ,"volume":"Volume" ,"adjusted":"Adj_Close"}
             The keys represent the value attribute for the plot, the value reprents the dict key or dataframe column to be used
-            
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
+
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
-        
+            None
+       
         """
+
+        dataConfig = self.chart(data, key, value, ohlcAttributes, config=config)    
+        self._plot(dataConfig)
+
+
+    def convert(self, data, key, value, ohlcAttributes={}):
+        self.key.append(key)
+        self.value.append(value)
+        self.ohlcAttributes.append(ohlcAttributes)
+
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 
         ohlcAttributes["date"] = key
         ohlcAttributes["close"] = value       
         nvd3Data = df.rename(str, {v:k for k,v in ohlcAttributes.items()})[list(ohlcAttributes.keys())].to_dict("records")
         
-        return [{"values": nvd3Data}]
+        return {"data":[{"values": nvd3Data}]}
+
+

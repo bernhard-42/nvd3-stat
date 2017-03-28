@@ -37,10 +37,13 @@ class HistoricalBarChart(Nvd3Chart):
 
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.key = []
+        self.value = []
 
-    def convert(self, data, key, value):
+
+    def plot(self, data, key, value, config={}):
         """
-        Convert data to HistoricalBarChart format
+        Create a HistoricalBarChart
         
         Example:
             >>> df.head(1)
@@ -51,9 +54,7 @@ class HistoricalBarChart(Nvd3Chart):
             >>> hb = HistoricalBarChart(nv.nvd3Functions)
 
             >>> config = {"color":nv.c20()[4:]}
-            >>> data = hb.convert(hdp, "Timestamp", "Volume")
-    
-            >>> hb.plot({"data": data, "config":config})
+            >>> hb.plot(hdp, "Timestamp", "Volume", config=config)
 
         Parameters
         ----------
@@ -70,16 +71,32 @@ class HistoricalBarChart(Nvd3Chart):
             Column name or dict key for values to used for the x axis
         value : string
             Column name or dict key for values to used for the y axis
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
 
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
+            None
         
         """        
-        
+        dataConfig = self.chart(data, key, value, config=config)    
+        self._plot(dataConfig)
+       
+       
+    def convert(self, data, key, value):
+        self.key.append(key)
+        self.value.append(key)
+
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
         
         nvd3Data = df.loc[:,[key, value]].rename(str, {key:"x", value:"y"}).to_dict("records")
         
-        return [{"key": key, "values":nvd3Data}]
+        return {"data": [{"key": key, "values":nvd3Data}]}
+
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, key=self.key[chart], value=self.value[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
+
+

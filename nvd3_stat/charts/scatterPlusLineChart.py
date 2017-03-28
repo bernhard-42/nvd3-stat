@@ -40,11 +40,16 @@ class ScatterPlusLineChart(Nvd3Chart):
     
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.keys = []
+        self.values = []
+        self.lines = []
+        self.pointAttributes = []
 
 
-    def convert(self, data, keys=None, values=None, lines=None, pointAttributes={}):
+    def plot(self, data, keys=None, values=None, lines=None, pointAttributes={}, config={}):
         """
-        Convert data to LineChart format
+        Create a ScatterPlusLineChart
+
         Example:
             >>> data0.head(2)  
                    Shape1       Shape3     Size1     Size3        X1        X2         Y1         Y2
@@ -61,26 +66,28 @@ class ScatterPlusLineChart(Nvd3Chart):
                 0  triangle-down  2.049830  1.940713  27.293514
                 1         square  2.015426  2.694447  25.333132
             
-            Option 1:
-            >>> data = spl.convert(data=[{ "data":data1, "keys":"X1", "values":"Y1", 
-                                           "lines":{"slope":1.5, "intercept":20}, 
-                                           "pointAttributes":{"shapes":"Shape1",  "sizes":"Size1"} },
-                                         { "data":data2, "keys":"X2", "values":"Y2", 
-                                           "lines":{"slope":1.2, "intercept":18}, 
-                                           "pointAttributes":{"shapes":"Shape2", "sizes":"Size2"} }])
-            
-            Option 2:
-            >>> data = spl.convert(data=data0, keys=["X1", "X2"], values=["Y1", "Y2"], 
-                                   lines=[{"slope":1.5, "intercept":20}, {"slope":1.2, "intercept":12}],
-                                   pointAttributes={"shapes":["Shape1", "Shape3"],  "sizes":["Size1", "Size3"]})
-            
-            Option 3:
-            >>> data = spl.convert(data=data0, keys="X1", values="Y1", 
-                                   lines={"slope":1.5, "intercept":20}, 
-                                   pointAttributes={"shapes":"Shape1", "sizes":"Size1"})
             
             >>> config = {"height":700, "color":nv.c10()}
-            >>> spl.plot({"data":data, "config":config})
+
+            Option 1:
+            >>> spl.plot(data=[{ "data":data1, "keys":"X1", "values":"Y1", 
+                                 "lines":{"slope":1.5, "intercept":20}, 
+                                 "pointAttributes":{"shapes":"Shape1",  "sizes":"Size1"}, config=config },
+                               { "data":data2, "keys":"X2", "values":"Y2", 
+                                 "lines":{"slope":1.2, "intercept":18}, 
+                                 "pointAttributes":{"shapes":"Shape2", "sizes":"Size2"}, config=config }])
+            
+            Option 2:
+            >>> spl.plot(data=data0, keys=["X1", "X2"], values=["Y1", "Y2"], 
+                         lines=[{"slope":1.5, "intercept":20}, {"slope":1.2, "intercept":12}],
+                         pointAttributes={"shapes":["Shape1", "Shape3"],  "sizes":["Size1", "Size3"]},
+                         config=config)
+            
+            Option 3:
+            >>> spl.plot(data=data0, keys="X1", values="Y1", 
+                         lines={"slope":1.5, "intercept":20}, 
+                         pointAttributes={"shapes":"Shape1", "sizes":"Size1"},
+                         config=config)
             
         Parameters
         ----------
@@ -102,19 +109,31 @@ class ScatterPlusLineChart(Nvd3Chart):
         pointAttributes : dict or dict of lists 
             Format {"shapes": [...], "sizes": [...]} where the list [...] contains
             the column names / dict keys to be used for shape or size of the point
-            
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
+
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format
+            None
         """
-        
+
+        dataConfig = self.chart(data, keys, values, lines, pointAttributes, config=config)    
+        self._plot(dataConfig)
+
+
+    def convert(self, data, keys=None, values=None, lines=None, pointAttributes={}):
+        self.keys.append(keys)
+        self.values.append(values)
+        self.lines.append(lines)
+        self.pointAttributes.append(pointAttributes)
+
         nvd3Data = []
         if isinstance(data, (list, tuple)):
             for d in data:
                 line = self.convert(data=d["data"], keys=d["keys"], values=d["values"],
                                     lines=d.get("lines"), pointAttributes=d.get("pointAttributes"))
-                nvd3Data.append(line[0])
+                nvd3Data.append(line["data"][0])
         else:
             shapes = pointAttributes.get("shapes")
             sizes = pointAttributes.get("sizes")
@@ -155,4 +174,16 @@ class ScatterPlusLineChart(Nvd3Chart):
                     
                 nvd3Data.append(points)
 
-        return nvd3Data
+        return {"data":nvd3Data}
+
+
+    def append(self, data, pointAttributes=None, lines=None, chart=0):
+        if pointAttributes is not None:
+            self.pointAttributes[chart] = pointAttributes
+        if lines is not  None:
+            self.lines[chart] = lines
+
+        dataConfig = self.chart(data, keys=self.keys[chart], values=self.values[chart], lines=self.lines[chart], 
+                                pointAttributes=self.pointAttributes[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
+

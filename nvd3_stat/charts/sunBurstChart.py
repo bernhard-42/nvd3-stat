@@ -31,7 +31,7 @@ class SunBurstChart(Nvd3Chart):
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
 
-    def convert(self, df):
+    def plot(self, data):
         """
         Directly use data in the form:
             
@@ -51,4 +51,4 @@ class SunBurstChart(Nvd3Chart):
                                 ]
                             }, ....
         """
-        print("Not implemented yet") 
+        self._plot(data)

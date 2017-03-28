@@ -34,10 +34,13 @@ class PieChart(Nvd3Chart):
     
     def __init__(self, nvd3Functions):
         super(self.__class__, self).__init__(nvd3Functions)
+        self.key = []
+        self.value = []
 
-    def convert(self, data, key, value):
+    
+    def plot(self, data, key=None, value=None, config={}):
         """
-        Convert data to PieChart format
+        Create a PieChart
         
         Example:
             >>> df.head(3)
@@ -49,9 +52,8 @@ class PieChart(Nvd3Chart):
             >>> p = nv.pieChart()
 
             >>> config={"height": 350, "width": 500, "color": nv.c20(), "yDomain":[0,12]}
-            >>> data = p.convert(df, key="Series", value="Mean")
-                
-            >>> p.plot({"data":data, "config":config})
+
+            >>> p.plot(df, key="Series", value="Mean", config=config)
 
         Parameters
         ----------
@@ -68,16 +70,30 @@ class PieChart(Nvd3Chart):
             Name of column holding values names
         value : string
             Name of column holding values
+        config : dict
+            dict of nvd3 options 
+            (use as keywork argument in the form config=myconfig)
 
         Returns
         -------
-        dict
-            The input data converted to the specific nvd3 chart format        
+            None
         """
-        
+
+        dataConfig = self.chart(data, key, value, config=config)    
+        self._plot(dataConfig)
+
+
+    def convert(self, data, key, value):
+        self.key.append(key)
+        self.value.append(value)
+
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
         
         nvd3Data = df.loc[:,[key, value]].rename(str, {key:"x", value:"y"}).to_dict("records")
 
-        return nvd3Data
+        return {"data": nvd3Data}
 
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, key=self.key[chart], value=self.value[chart], config=self.config[chart]) 
+        self._append(dataConfig, chart=chart)
