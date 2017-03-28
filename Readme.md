@@ -1,4 +1,4 @@
-# A high level python interface to nvd3 for Juyopter and Zeppelin notebooks
+# Python interface to nvd3 for Juypter and Zeppelin notebooks
 
 ## Usage
 
@@ -70,5 +70,34 @@ Sample Notebook:
 [TensorFlow with nvd3-stat](notebooks/TensorFlow%20with%20nvd3-stat.ipynb)
 
 Visualisation part:
+
+```python
+# define plot configuration
+lmax = 20  # max loss to be plotted
+
+config={"height":500, "width": 500, "color":nv.c10(1,0), "duration":0,
+        "xDomain":[0,training_steps],"xAxis":{"axisLabel":"Step", "tickFormat":",d"} }
+
+aConfig = dict(yDomain=[0.95,1], yAxis={"axisLabel":"Accuracy", "tickFormat":",.3f"}, **config)
+lConfig = dict(yDomain=[0,lmax], yAxis={"axisLabel":"Loss",     "tickFormat":",.3f"}, **config)
+
+
+# Create data in the correct format
+def data(typ, x, y_test, y_train):
+    return {"step":[x], "train_%s"%typ:[y_train], "test_%s"%typ:[y_test]}
+
+al = nv.lineChart()
+
+# create a horizontal plot with two charts
+al.hplot([al.chart(data("accuracy", 0, 0, 0),   "step", ["test_accuracy", "train_accuracy"], 
+                   config=aConfig),
+          al.chart(data("loss", 0, lmax, lmax), "step", ["test_loss",     "train_loss"    ], 
+                   config=lConfig)])
+
+# append data to plots
+def alAppend(i, a_train, a_test, l_train, l_test):
+    al.append(data("accuracy", i, a_train, a_test), chart=0)
+    al.append(data("loss",     i, l_train, l_test), chart=1)
+```
 
 ![tensorflow](images/tensorflow.gif)
