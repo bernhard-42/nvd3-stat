@@ -117,7 +117,7 @@ class Nvd3(object):
         return BulletChart(self.nvd3Functions)
 
 
-    def _slice(colors, args):
+    def _slice(self, colors, args):
         if len(args) == 0:
             return colors
         else:
