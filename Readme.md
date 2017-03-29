@@ -3,7 +3,7 @@
 Tested with:
 
 - Anaconda 4.3.1, python 2.7.13 and python 3.5.2 (jupyter-1.0.0, IPython 5.1.0)
-
+- Zeppelin 0.7.0 standalone
 
 ## Usage
 
