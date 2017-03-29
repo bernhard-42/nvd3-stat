@@ -1,11 +1,18 @@
 # Python interface to nvd3 for Juypter and Zeppelin notebooks
 
-## Usage
+Tested with:
 
+- Anaconda 4.3.1, python 2.7.13 and python 3.5.2 (jupyter-1.0.0, IPython 5.1.0)
+
+
+## Usage
 
 ### Installation
 
-	Install with `pip install .` and then load sample notebook
+Install with `pip install .` and then load sample notebook 
+    
+- [IPython NVD3 Demo](notebooks/NVD3%20Demo.ipynb.ipynb)
+- [Zeppelin NVD3 Demo](Zeppelin-Nvd3-Demo.json)
 
 
 ### Notebook
@@ -23,6 +30,7 @@ nv.reloadNVD3(nvd3version="1.8.5", d3version="3.5.17")
 
 ```python
 import pandas as pd
+import numpy as np
 
 x = np.linspace(0, 4*np.pi, 100)
 
@@ -56,20 +64,13 @@ for i in range(71,100):
     lc.append(l_df[i:i+1])
 ```
 
-#### More demos
-
-Sample Notebook:
-
-[NVD3 Demo](notebooks/NVD3%20Demo.ipynb.ipynb)
-
 
 #### Observer Tensorflow learning
 
 Sample Notebook:
 
-[TensorFlow with nvd3-stat](notebooks/TensorFlow%20with%20nvd3-stat.ipynb)
-
-Visualisation part:
+- [IPython TensorFlow with nvd3-stat](notebooks/TensorFlow%20with%20nvd3-stat.ipynb)
+- [Zeppelin  TensorFlow with nvd3-stat](notebooks/Tensorflow%20tests.json)
 
 ```python
 # define plot configuration

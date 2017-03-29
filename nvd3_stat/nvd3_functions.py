@@ -250,7 +250,7 @@ class Nvd3Functions(object):
         if(typeof(window.__nvd3_stat_debug) == "undefined") {
             window.__nvd3_stat_debug = 0;  // no debug output
         }
-        console.info("nvd3py is initialized");
+        console.info("nvd3_stat is initialized");
         """
         display_javascript(Javascript(js))
 
