@@ -11,8 +11,8 @@ Tested with:
 
 Install with `pip install .` and then load sample notebook 
     
-- [IPython NVD3 Demo](notebooks/NVD3%20Demo.ipynb.ipynb)
-- [Zeppelin NVD3 Demo](Zeppelin-Nvd3-Demo.json)
+- [IPython NVD3 Demo](notebooks/NVD3%20Demo.ipynb)
+- [Zeppelin NVD3 Demo](notebooks/Zeppelin-Nvd3-Demo.json)
 
 
 ### Notebook
@@ -67,10 +67,12 @@ for i in range(71,100):
 
 #### Observer Tensorflow learning
 
-Sample Notebook:
+Complete Notebook:
 
 - [IPython TensorFlow with nvd3-stat](notebooks/TensorFlow%20with%20nvd3-stat.ipynb)
 - [Zeppelin  TensorFlow with nvd3-stat](notebooks/Tensorflow%20tests.json)
+
+Visualisation part, called every batch 
 
 ```python
 # define plot configuration
