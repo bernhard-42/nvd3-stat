@@ -44,9 +44,10 @@ class ScatterPlusLineChart(Nvd3Chart):
         self.values = []
         self.lines = []
         self.pointAttributes = []
+        self.nvd3Data = []
 
 
-    def plot(self, data, keys=None, values=None, lines=None, pointAttributes={}, config={}):
+    def plot(self, data=None, keys=None, values=None, lines=None, pointAttributes={}, config={}):
         """
         Create a ScatterPlusLineChart
 
@@ -70,24 +71,23 @@ class ScatterPlusLineChart(Nvd3Chart):
             >>> config = {"height":700, "color":nv.c10()}
 
             Option 1:
-            >>> spl.plot(data=[{ "data":data1, "keys":"X1", "values":"Y1", 
-                                 "lines":{"slope":1.5, "intercept":20}, 
-                                 "pointAttributes":{"shapes":"Shape1",  "sizes":"Size1"}, config=config },
-                               { "data":data2, "keys":"X2", "values":"Y2", 
-                                 "lines":{"slope":1.2, "intercept":18}, 
-                                 "pointAttributes":{"shapes":"Shape2", "sizes":"Size2"}, config=config }])
-            
-            Option 2:
             >>> spl.plot(data=data0, keys=["X1", "X2"], values=["Y1", "Y2"], 
                          lines=[{"slope":1.5, "intercept":20}, {"slope":1.2, "intercept":12}],
                          pointAttributes={"shapes":["Shape1", "Shape3"],  "sizes":["Size1", "Size3"]},
                          config=config)
             
-            Option 3:
+            Option 2:
             >>> spl.plot(data=data0, keys="X1", values="Y1", 
                          lines={"slope":1.5, "intercept":20}, 
                          pointAttributes={"shapes":"Shape1", "sizes":"Size1"},
                          config=config)
+
+            Option 3:
+            >>> spl.addScatter(data1, "X1", "Y1", lines={"slope":1.5, "intercept":20}, 
+                                                  pointAttributes={"shapes":"Shape1",  "sizes":"Size1"})
+            >>> spl.addScatter(data1, "X2", "Y2", lines={"slope":1.2, "intercept":18}, 
+                                                  pointAttributes={"shapes":"Shape2", "sizes":"Size2"})
+            >>> sqpl.plot(config=config)           
             
         Parameters
         ----------
@@ -118,8 +118,17 @@ class ScatterPlusLineChart(Nvd3Chart):
             None
         """
 
-        dataConfig = self.chart(data, keys, values, lines, pointAttributes, config=config)    
+        if data is None:
+            dataConfig = {"data":self.nvd3Data, "config": config}
+            self.data.append(self.nvd3Data) # save the collection of single lines 
+        else:
+            dataConfig = self.chart(data, keys, values, lines, pointAttributes, config=config)    
         self._plot(dataConfig)
+
+
+    def addScatter(self, data, key=None, values=None, lines=None, pointAttributes={}):
+        convData = self.convert(data, key, values, lines, pointAttributes)
+        self.nvd3Data.append(convData["data"][0]) # collect single lines
 
 
     def convert(self, data, keys=None, values=None, lines=None, pointAttributes={}):
@@ -129,50 +138,45 @@ class ScatterPlusLineChart(Nvd3Chart):
         self.pointAttributes.append(pointAttributes)
 
         nvd3Data = []
-        if isinstance(data, (list, tuple)):
-            for d in data:
-                line = self.convert(data=d["data"], keys=d["keys"], values=d["values"],
-                                    lines=d.get("lines"), pointAttributes=d.get("pointAttributes"))
-                nvd3Data.append(line["data"][0])
+
+        shapes = pointAttributes.get("shapes")
+        sizes = pointAttributes.get("sizes")
+
+        df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
+        if (isinstance(values, (list, tuple))):
+            if shapes is None:
+                shapes = [None]*len(values)
+            if sizes is None:
+                sizes = [None]*len(values)
+            if lines is None:
+                lines = [None]*len(values)
         else:
-            shapes = pointAttributes.get("shapes")
-            sizes = pointAttributes.get("sizes")
+            keys = [keys]
+            values = [values]
+            sizes = [sizes]
+            shapes = [shapes]
+            lines = [lines]
 
-            df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
-            if (isinstance(values, (list, tuple))):
-                if shapes is None:
-                    shapes = [None]*len(values)
-                if sizes is None:
-                    sizes = [None]*len(values)
-                if lines is None:
-                    lines = [None]*len(values)
-            else:
-                keys = [keys]
-                values = [values]
-                sizes = [sizes]
-                shapes = [shapes]
-                lines = [lines]
+        nvd3Data = []
+        for i in range(len(values)):
+            columns = [keys[i], values[i]] 
+            renameDict = {keys[i]:"x", values[i]:"y"}
 
-            nvd3Data = []
-            for i in range(len(values)):
-                columns = [keys[i], values[i]] 
-                renameDict = {keys[i]:"x", values[i]:"y"}
+            if shapes[i] is not None:
+                columns.append(shapes[i])
+                renameDict[shapes[i]] = "shape"
+            if sizes[i] is not None:
+                columns.append(sizes[i])
+                renameDict[sizes[i]] = "size"
 
-                if shapes[i] is not None:
-                    columns.append(shapes[i])
-                    renameDict[shapes[i]] = "shape"
-                if sizes[i] is not None:
-                    columns.append(sizes[i])
-                    renameDict[sizes[i]] = "size"
-
-                points = df.loc[:,columns].rename(str, renameDict)
-                points = {"key":values[i], "values":points.to_dict("records")}
+            points = df.loc[:,columns].rename(str, renameDict)
+            points = {"key":values[i], "values":points.to_dict("records")}
+            
+            if lines[i] is not None:
+                points["intercept"] = lines[i]["intercept"]
+                points["slope"] = lines[i]["slope"]
                 
-                if lines[i] is not None:
-                    points["intercept"] = lines[i]["intercept"]
-                    points["slope"] = lines[i]["slope"]
-                    
-                nvd3Data.append(points)
+            nvd3Data.append(points)
 
         return {"data":nvd3Data}
 

@@ -42,12 +42,13 @@ class LineChart(Nvd3Chart):
         self.key = []
         self.values = []
         self.lineAttributes = []
+        self.nvd3Data = []
 
         style = "<style>.dashed { stroke-dasharray: 7,7; }\n.dotted { stroke-dasharray: 3,3; } </style>"
         nvd3Functions.display(html=style)
 
 
-    def plot(self, data, key=None, values=None, lineAttributes={}, config={}):
+    def plot(self, data=None, key=None, values=None, lineAttributes={}, config={}):
         """
         Create a LineChart
         
@@ -58,18 +59,19 @@ class LineChart(Nvd3Chart):
             >>> sin1 = {"X":x1, "Sin": np.sin(x1)}
             >>> cos1 = {"X":x2, "Cos": np.cos(x2)}
             
-            >>> l1 = LineChart(nv.nvd3Functions)
+            >>> l1 = nv.LineChart()
             
             Option 1:
-            >>> l1.plot([{"data":sin1, "key":"X", "values":"Sin", "lineAttributes":{"area":True, "fillOpacity":0.2, "style":"dashed"}, config=config}, 
-                         {"data":cos1, "key":"X", "values":"Cos", "lineAttributes":{"style":"dotted"}, config=config}])
-            
-            Option 2:
             >>> l1.plot(data=sin, key="X", values=["Sin", "Cos"], 
                         lineAttributes={"area":[True,False], "fillOpacity":[0.2,0], "style":["dashed",None]},
                         config=config)
-            Option 3:
+            Option 2:
             >>> l1.plot(data=sin, key="X", values="Sin", lineAttributes={"style":"dotted"}, config=config)
+                        
+            Option 3:
+            >>> l1.addLine(sin1, "X", "Sin", "lineAttributes":{"area":True, "fillOpacity":0.2, "style":"dashed"}) 
+            >>> l1.addLine(cos1, "X", "Cos", "lineAttributes":{"style":"dotted"}) 
+            >>> l1.plot(config=config)
                         
         Parameters
         ----------
@@ -100,37 +102,41 @@ class LineChart(Nvd3Chart):
             None
         """
 
-        dataConfig = self.chart(data, key, values, lineAttributes, config=config)    
+        if data is None:
+            dataConfig = {"data":self.nvd3Data, "config": config}
+            self.data.append(self.nvd3Data) # save the collection of single lines 
+        else:
+            dataConfig = self.chart(data, key, values, lineAttributes, config=config)    
         self._plot(dataConfig)
 
 
+    def addLine(self, data, key=None, values=None, lineAttributes={}):
+        convData = self.convert(data, key, values, lineAttributes)
+        self.nvd3Data.append(convData["data"][0]) # collect single lines
+
+
     def convert(self, data, key=None, values=None, lineAttributes={}):
-        self.key. append(key)
-        self.values. append(values)
-        self.lineAttributes. append(lineAttributes)
+        self.key.append(key)
+        self.values.append(values)
+        self.lineAttributes.append(lineAttributes)
 
         nvd3Data = []
-        if isinstance(data, (list, tuple)):
-            for d in data:
-                line = self.convert(data=d["data"], key=d["key"], values=d["values"],
-                                    lineAttributes=d.get("lineAttributes"))
-                nvd3Data.append(line[0])
-        else:
-            df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 
-            if lineAttributes is None:
-                lineAttributes = {}
+        df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 
-            if not isinstance(values, (list, tuple)):
-                values = [values]
-                lineAttributes = {k:[v] for k,v in lineAttributes.items()}
-                
-            for i in range(len(values)):
-                line = {"key":values[i], "values":df.loc[:,[key, values[i]]].rename(str,{key:"x", values[i]:"y"}).to_dict("records")}
-                for k,v in lineAttributes.items():
-                    line["classed" if k == "style" else k] = v[i]
-    
-                nvd3Data.append(line)
+        if lineAttributes is None:
+            lineAttributes = {}
+
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+            lineAttributes = {k:[v] for k,v in lineAttributes.items()}
+            
+        for i in range(len(values)):
+            line = {"key":values[i], "values":df.loc[:,[key, values[i]]].rename(str,{key:"x", values[i]:"y"}).to_dict("records")}
+            for k,v in lineAttributes.items():
+                line["classed" if k == "style" else k] = v[i]
+
+            nvd3Data.append(line)
 
         return {"data": nvd3Data} 
      
