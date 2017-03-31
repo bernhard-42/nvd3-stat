@@ -26,7 +26,7 @@ def display_javascript(js):
 
 def loadNVD3(nvd3version="1.8.5", d3version="3.5.17"):
     html = """
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.js"></script> -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css" rel="stylesheet" crossOrigin:"anonymous">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.js"></script>
         <script src="http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng.js" type="text/javascript"></script>
