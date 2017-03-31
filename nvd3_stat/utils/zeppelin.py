@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
+
 def HTML(text):
     return "%%html\n%s" % text
 
@@ -26,9 +28,29 @@ def display_javascript(js):
 
 def loadNVD3(nvd3version="1.8.5", d3version="3.5.17"):
     html = """
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.js"></script> -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css" rel="stylesheet" crossOrigin:"anonymous">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.js"></script>
-        <script src="http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng.js" type="text/javascript"></script>
     """ % (d3version, nvd3version, nvd3version)
     display_html(HTML(html))
+
+    time.sleep(0.5)
+    
+    js = """
+        console.log("successfully loaded nv.d3.css %s");
+        jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.js", function( data, textStatus, jqxhr ) { 
+          if (textStatus == "success") {
+            console.log("successfully loaded d3.js %s");
+            jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.js", function( data, textStatus, jqxhr ) { 
+              if (textStatus == "success") {
+                console.log("successfully loaded nv.d3,js %s");
+                jQuery.getScript("http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng.js", function( data, textStatus, jqxhr ) { 
+                  if (textStatus == "success") {
+                      console.log("successfully loaded saveSvgAsPng");
+                  }
+                })
+              }
+          })
+        }
+      })                    
+    """
+
+    display_javascript(Javascript(js))
