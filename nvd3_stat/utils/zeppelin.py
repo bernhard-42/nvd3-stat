@@ -29,7 +29,7 @@ def display_javascript(js):
 def loadNVD3(nvd3version="1.8.5", d3version="3.5.17"):
     html = """
         <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css" rel="stylesheet" crossOrigin:"anonymous">
-    """ % (d3version, nvd3version, nvd3version)
+    """ % (nvd3version)
     display_html(HTML(html))
 
     time.sleep(0.5)
@@ -51,6 +51,6 @@ def loadNVD3(nvd3version="1.8.5", d3version="3.5.17"):
           })
         }
       })                    
-    """
+    """  % (nvd3version, d3version, d3version, nvd3version, nvd3version)
 
     display_javascript(Javascript(js))
