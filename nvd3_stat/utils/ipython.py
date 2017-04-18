@@ -76,9 +76,9 @@ class IPythonSession(object):
 def loadNVD3(nvd3version="1.8.2", d3version="3.5.17"):
 
     js = """
-        var d3_js = "https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3";
-        var nvd3_css = "https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.css";
-        var nvd3_js = "https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.js";
+        var d3_js = "https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.min";  // has to min: https://github.com/novus/nvd3/issues/1520
+        var nvd3_css = "https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css";
+        var nvd3_js = "https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.js";
         var saveAsPng_js = "https://rawgit.com/bernhard-42/saveSvgAsPng/gh-pages/saveSvgAsPng";
 
         var cssLoaded = function(href) {
