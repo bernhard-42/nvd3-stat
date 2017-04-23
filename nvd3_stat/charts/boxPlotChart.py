@@ -77,7 +77,7 @@ class BoxPlotChart(Nvd3Chart):
             
         """
 
-        dataConfig = self.chart(data, keys, boxStyle, config=config)
+        dataConfig = self.chart(data, keys=keys, boxStyle=boxStyle, config=config)
         self._plot(dataConfig)
 
 
@@ -120,7 +120,7 @@ class BoxPlotChart(Nvd3Chart):
          df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
          self.df[chart] = pd.concat([self.df[chart], df])
 
-         dataConfig = self.chart(self.df[chart], keys=self.keys[chart], boxStyle=self.boxStyle[chart], config=self.config[chart]) 
+         dataConfig = self.chart(self.df[chart], keys=self.keys[chart], boxStyle=self.boxStyle[chart], config=self.config[chart], chart=chart) 
         
          self._replace(dataConfig, chart=chart)
 

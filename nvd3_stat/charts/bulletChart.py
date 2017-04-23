@@ -75,7 +75,8 @@ class BulletChart(Nvd3Chart):
         
         """
 
-        dataConfig = self.chart(title, subtitle, ranges, measure, markers, markerLines, config=config)    
+        dataConfig = self.chart(title=title, subtitle=subtitle, ranges=ranges, measure=measure, 
+                                markers=markers, markerLines=markerLines, config=config)    
         self._plot(dataConfig)
 
 

@@ -122,7 +122,7 @@ class ScatterPlusLineChart(Nvd3Chart):
             dataConfig = {"data":self.nvd3Data, "config": config}
             self.data.append(self.nvd3Data) # save the collection of single lines 
         else:
-            dataConfig = self.chart(data, keys, values, lines, pointAttributes, config=config)    
+            dataConfig = self.chart(data, keys=keys, values=values, lines=lines, pointAttributes=pointAttributes, config=config)    
         self._plot(dataConfig)
 
 
@@ -188,6 +188,6 @@ class ScatterPlusLineChart(Nvd3Chart):
             self.lines[chart] = lines
 
         dataConfig = self.chart(data, keys=self.keys[chart], values=self.values[chart], lines=self.lines[chart], 
-                                pointAttributes=self.pointAttributes[chart], config=self.config[chart]) 
+                                pointAttributes=self.pointAttributes[chart], config=self.config[chart], chart=chart) 
         self._append(dataConfig, chart=chart)
 

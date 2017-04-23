@@ -77,7 +77,7 @@ class DiscreteBarChart(Nvd3Chart):
             None
         """
 
-        dataConfig = self.chart(data, key, value, config=config)    
+        dataConfig = self.chart(data, key=key, value=value, config=config)    
         self._plot(dataConfig)
       
 
@@ -94,6 +94,6 @@ class DiscreteBarChart(Nvd3Chart):
 
 
     def append(self, data, chart=0): 
-        dataConfig = self.chart(data, key=self.key[chart], value=self.value[chart], config=self.config[chart]) 
+        dataConfig = self.chart(data, key=self.key[chart], value=self.value[chart], config=self.config[chart], chart=chart) 
         self._append(dataConfig, chart=chart)
 

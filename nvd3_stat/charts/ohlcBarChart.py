@@ -89,7 +89,7 @@ class OhlcBarChart(Nvd3Chart):
             None
         """
 
-        dataConfig = self.chart(data, key, value, ohlcAttributes, config=config)    
+        dataConfig = self.chart(data, key=key, value=value, ohlcAttributes=ohlcAttributes, config=config)    
         self._plot(dataConfig)
 
 
@@ -105,5 +105,10 @@ class OhlcBarChart(Nvd3Chart):
         nvd3Data = df.rename(str, {v:k for k,v in ohlcAttributes.items()})[list(ohlcAttributes.keys())].to_dict("records")
         
         return {"data":[{"values": nvd3Data}]}
+
+
+    def append(self, data, chart=0): 
+        dataConfig = self.chart(data, key=self.key[chart], value=self.value[chart], config=self.config[chart], chart=chart) 
+        self._append(dataConfig, chart=chart)
 
 

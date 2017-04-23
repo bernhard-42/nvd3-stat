@@ -85,7 +85,7 @@ class MultiBarChart(Nvd3Chart):
             None
         """
 
-        dataConfig = self.chart(data, key, values, config=config)    
+        dataConfig = self.chart(data, key=key, values=values, config=config)    
         self._plot(dataConfig)
 
  
@@ -103,7 +103,7 @@ class MultiBarChart(Nvd3Chart):
 
 
     def append(self, data, chart=0): 
-        dataConfig = self.chart(data, key=self.key[chart], values=self.values[chart], config=self.config[chart]) 
+        dataConfig = self.chart(data, key=self.key[chart], values=self.values[chart], config=self.config[chart], chart=chart) 
         self._append(dataConfig, chart=chart)
 
 

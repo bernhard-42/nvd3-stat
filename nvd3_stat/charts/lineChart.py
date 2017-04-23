@@ -103,10 +103,12 @@ class LineChart(Nvd3Chart):
         """
 
         if data is None:
-            dataConfig = {"data":self.nvd3Data, "config": config}
+            self.config.append(config)
             self.data.append(self.nvd3Data) # save the collection of single lines 
+            dataConfig = {"data":self.nvd3Data, "config": config}
         else:
-            dataConfig = self.chart(data, key, values, lineAttributes, config=config)    
+            dataConfig = self.chart(data, key=key, values=values, lineAttributes=lineAttributes, config=config)    
+
         self._plot(dataConfig)
 
 
@@ -142,6 +144,6 @@ class LineChart(Nvd3Chart):
      
 
     def append(self, data, chart=0): 
-        dataConfig = self.chart(data, self.key[chart], self.values[chart], self.lineAttributes[chart], config=self.config[chart]) 
+        dataConfig = self.chart(data, self.key[chart], self.values[chart], self.lineAttributes[chart], config=self.config[chart], chart=chart) 
         self._append(dataConfig, chart=chart)
 

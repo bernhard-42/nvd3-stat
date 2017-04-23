@@ -90,7 +90,7 @@ class LinePlusBarChart(Nvd3Chart):
             None        
         """
 
-        dataConfig = self.chart(data, key, lineValue, barValue, config=config)  
+        dataConfig = self.chart(data, key=key, lineValue=lineValue, barValue=barValue, config=config)  
         self._plot(dataConfig)
 
 
@@ -108,7 +108,7 @@ class LinePlusBarChart(Nvd3Chart):
 
 
     def append(self, data, chart=0): 
-        dataConfig = self.chart(data, key=self.key[chart], lineValue=self.lineValue[chart], barValue=self.barValue[chart], config=self.config[chart]) 
+        dataConfig = self.chart(data, key=self.key[chart], lineValue=self.lineValue[chart], barValue=self.barValue[chart], config=self.config[chart], chart=chart) 
         self._append(dataConfig, chart=chart)
 
 

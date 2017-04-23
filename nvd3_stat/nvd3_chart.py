@@ -14,7 +14,7 @@
 
 from .nvd3_functions import Nvd3Functions
 import numpy as np
-
+import json
 
 class Nvd3Chart(object):
     _plotId = 0
@@ -36,7 +36,7 @@ class Nvd3Chart(object):
         self.gap = 15
 
     def _divId(self):
-        return "%s-%03d" % (self.funcName, Nvd3Chart._plotId) 
+        return "%s_%03d" % (self.funcName, Nvd3Chart._plotId) 
         
 
     def _call(self, event, delay, divId, data):
@@ -104,20 +104,34 @@ class Nvd3Chart(object):
             style = "float:left;"
 
         html = """<div style="height:%dpx; width:%dpx">""" %  (overallHeight, self.width)
-        for divId, width in zip(self.divIds, _widths):
+
+        for dataConfig, divId, width in zip(dataConfigs, self.divIds, _widths):
             html = html + """
             <div id="%s" class="with-3d-shadow with-transitions" style="%s height:%dpx; width:%dpx">
                 <svg></svg>
+                <script class="nvd3_data">
+                    var data_%s = %s;
+                </script>
+                <script>
+                    (function() {
+                        var plot = %s
+                        var synch = function(session, object) {
+                            window.nvd3_stat.promise.then(function() {
+                                window.nvd3_stat.session.__functions.charts["%s"] = plot;
+                                plot(session, object);
+                            })
+                        }
+                        document.getElementById("%s")
+                                .addEventListener("load", synch(window.nvd3_stat.session, 
+                                                  {"event":"plot", "data": data_%s, "plotId":"%s"}))
+                    })();
+                </script>
             </div>
-            """ % (divId, style, self.height, width)
-        html = html + "</div>"
+            """ % (divId, style, self.height, width, divId, json.dumps(self.deNumpy(dataConfig)), 
+                   self.funcBody.strip(), divId, divId, divId, divId)
+
+        
         self.nvd3Functions.display(html=html)
-
-        # And finally plot the charts
-
-        for dataConfig, divId, width in zip(dataConfigs, self.divIds, _widths):
-            dataConfig2 = self.deNumpy(dataConfig)
-            self._call("plot", self.delay, divId, dataConfig2)
 
     
     def _plot(self, dataConfig):
@@ -128,16 +142,14 @@ class Nvd3Chart(object):
 
 
     def chart(self, *args, **kwargs):
-        config = kwargs.get("config")
-        if config is None:
-            config = {}
-            kw = kwargs
-        else:
-            kw = {k:v for k,v in kwargs.items() if k != "config"}
+        config = kwargs.get("config", {})
+        chart = kwargs.get("chart")
 
+        kw = {k:v for k,v in kwargs.items() if k not in ["config", "chart"]}
         data = self.convert(*args, **kw)
-        self.data.append(data["data"])
-        self.config.append(config)
+        if chart is None:
+            self.data.append(data["data"])
+            self.config.append(config)
 
         return dict(config=config, **data)
 
@@ -226,3 +238,12 @@ class Nvd3Chart(object):
         if filename is None:
             filename = self.divIds[chart]
         self._call("saveAsPng", 0, self.divIds[chart], {"filename":filename, "backgroundColor":backgroundColor})
+
+
+    def clone(self):
+        dataConfig = [{"data":data, "config":config} for data, config in zip(self.data, self.config)]
+        chartClone = self.__class__(self.nvd3Functions)
+        chartClone.horizontal = self.horizontal
+        chartClone.vertical = self.vertical
+        chartClone._plot(dataConfig)
+        return chartClone

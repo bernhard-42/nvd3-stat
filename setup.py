@@ -6,13 +6,14 @@ def read(fname):
 
 setup(
     name = "nvd3_stat",
-    version = "0.2.0",
+    version = "0.3.0",
     author = "Bernhard Walter",
     author_email = "bwalter@gmail.com",
     description = ("Charts for pandas running in IPython and Zeppelin notebooks"),
     license = "Apache License 2.0",
     keywords = "zeppelin ipython visualizations",
     packages=find_packages(),
+    package_data={'nvd3_stat': ['js/*']},
     long_description=read('Readme.md'),
     classifiers=[
         "Development Status :: 4 - Beta",

@@ -93,7 +93,7 @@ class ParallelCoordinatesChart(Nvd3Chart):
             None
         """
  
-        dataConfig = self.chart(data, key, values, dimAttributes, lineAttributes, config=config)    
+        dataConfig = self.chart(data, key=key, values=values, dimAttributes=dimAttributes, lineAttributes=lineAttributes, config=config)    
         self._plot(dataConfig)
 
        
