@@ -34,7 +34,7 @@ class ScatterPlusLineChart(Nvd3Chart):
           
             chart.scatter.onlyCircles = false;
 
-            session.__functions.makeChart(session, object, chart);
+            session.makeChart(session, object, chart);
         }        
     """
     

@@ -27,7 +27,7 @@ class DiscreteBarChart(Nvd3Chart):
                 .showLegend(false)
                 .margin({top:30})
 
-            session.__functions.makeChart(session, object, chart);
+            session.makeChart(session, object, chart);
         }        
     """
 

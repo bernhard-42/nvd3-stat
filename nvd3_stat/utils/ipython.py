@@ -24,12 +24,6 @@ class IPythonSession(object):
         self.comm = None
 
         js = """
-            window.nvd3_stat = { 
-                session: { 
-                    __functions:{ charts: {} }, 
-                    __cache:    { charts: {} } 
-                } 
-            };
 
             // after refresh window wait for max 5 seconds until Jupyter notebook is initialized
 
@@ -55,7 +49,7 @@ class IPythonSession(object):
                                 if (window.__nvd3_stat_debug > 1) {
                                     console.log("NVD3-Stat [DEBUG]", funcName, args)
                                 }
-                                window.nvd3_stat.session.__functions.charts[plotId](window.nvd3_stat.session, args);
+                                window.nvd3_stat.session[funcName](window.nvd3_stat.session, args);
                             });
 
                             comm.on_close(function(msg) {
@@ -91,10 +85,8 @@ class IPythonSession(object):
 
 
     def registerFunction(self, funcName, funcBody):
-        js = """
-        window.nvd3_stat.session.__functions.%s = %s;
-        """ % (funcName, funcBody)
-        display_javascript(Javascript(js))
+        # Zeppelin only
+        pass
 
 
     def call(self, funcName, args, delay):

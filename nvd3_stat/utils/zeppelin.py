@@ -29,28 +29,36 @@ def display_javascript(js):
 def loadNVD3(nvd3version="1.8.5", d3version="3.5.17"):
     html = """
         <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css" rel="stylesheet" crossOrigin:"anonymous">
+        <div id="nvd3_loadStatus"><div>
     """ % (nvd3version)
     display_html(HTML(html))
 
     time.sleep(0.5)
     
     js = """
-      console.log("successfully loaded nv.d3.css %s");
-      jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.min.js", function( data, textStatus, jqxhr ) {
-        if (textStatus == "success") {
-          console.log("successfully loaded d3.js %s");
-          jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.js", function( data, textStatus, jqxhr ) {
-            if (textStatus == "success") {
-              console.log("successfully loaded nv.d3,js %s");
-              jQuery.getScript("http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng.js", function( data, textStatus, jqxhr ) {
-                if (textStatus == "success") {
-                  console.log("successfully loaded saveSvgAsPng");
-                }
-              })
-            }
-          })
-        }
-      })                    
+      var print = function(msg) {
+        var el = document.getElementById("nvd3_loadStatus")
+        el.innerHTML += "<div>" + msg + "</div>";
+      }
+      print("successfully loaded nv.d3.css %s");
+      window.nvd3_stat.promise = new Promise(function(resolve, reject) {
+        jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.min.js", function( data, textStatus, jqxhr ) {
+          if (textStatus == "success") {
+            print("successfully loaded d3.js %s");
+            jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.js", function( data, textStatus, jqxhr ) {
+              if (textStatus == "success") {
+                print("successfully loaded nv.d3.js %s");
+                resolve();
+                jQuery.getScript("http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng.js", function( data, textStatus, jqxhr ) {
+                  if (textStatus == "success") {
+                    print("successfully loaded saveSvgAsPng");
+                  }
+                })
+              }
+            })
+          }
+        })
+      })
     """  % (nvd3version, d3version, d3version, nvd3version, nvd3version)
 
     display_javascript(Javascript(js))

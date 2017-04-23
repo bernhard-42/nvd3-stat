@@ -34,7 +34,7 @@ class OhlcBarChart(Nvd3Chart):
             chart.yAxis.showMaxMin(true)
                        .tickFormat(d3.format(',.1f'))
 
-            session.__functions.makeChart(session, object, chart);
+            session.makeChart(session, object, chart);
         }        
     """
     

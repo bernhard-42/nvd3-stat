@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os.path
+import time
 from IPython import get_ipython
 
 if get_ipython() is None:
@@ -34,23 +35,31 @@ class Nvd3Functions(object):
         with open(os.path.join(folder, "js", "makeChart.js"), "r") as fd:
             makeChart = fd.read()
 
-        self.register("makeChart", makeChart)
-
         js = """
+        window.nvd3_stat = { 
+            session: {
+                charts: {}
+            } 
+        };
+        window.nvd3_stat.session.makeChart = %s
+
         if(typeof(window.__nvd3_stat_debug) == "undefined") {
-            window.__nvd3_stat_debug = 0;  // no debug output
+            window.__nvd3_stat_debug = 2;  // no debug output
         }
         console.info("nvd3_stat is initialized");
-        """
+        """ % makeChart
         display_javascript(Javascript(js))
+
+        time.sleep(0.5)
+        self.register("makeChart", "window.nvd3_stat.session.makeChart")
 
 
     def register(self, funcName, funcBody):
-        self.session.registerFunction(funcName.lstrip(), funcBody.lstrip()) 
+        self.session.registerFunction(funcName, funcBody) 
 
  
-    def call(self, funcName, event, data, divId, delay=200):
-        self.session.call(funcName, {"event":event, "data": data, "plotId":"%s" % divId}, delay)
+    def call(self, event, data, divId, delay=200):
+        self.session.call("makeChart", {"event":event, "data": data, "plotId":"%s" % divId}, delay)
 
 
     def reloadNVD3(self, nvd3version="1.8.5", d3version="3.5.17"):

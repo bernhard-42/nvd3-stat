@@ -37,11 +37,12 @@ class Nvd3(object):
     
     def __init__(self, downloadAsPng=True):
         self.nvd3Functions = Nvd3Functions()
-        
+
 
     def reloadNVD3(self, nvd3version="1.8.5", d3version="3.5.17"):
         self.nvd3Functions.reloadNVD3(nvd3version, d3version)
    
+
     def traceJs(self, on=True):
         self.nvd3Functions.traceJs(on)
         

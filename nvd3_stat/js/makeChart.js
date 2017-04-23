@@ -82,7 +82,7 @@ function(session, object, chart) {
     nv.utils.windowResize = function(chart) { console.info("windowResize not supported") } // avoid d3 translate(Nan,5) errors
     var duration = 350;
 
-    var cache = session.__cache.charts;
+    var cache = window.nvd3_stat.session.charts;
     
     if (object.event == "plot") {
 

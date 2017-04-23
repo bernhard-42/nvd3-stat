@@ -28,7 +28,7 @@ class PieChart(Nvd3Chart):
                 .legendPosition('top')
 //                .showTooltipPercent(true)
 
-           session.__functions.makeChart(session, object, chart);
+           session.makeChart(session, object, chart);
         }        
     """
     

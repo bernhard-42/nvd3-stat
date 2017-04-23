@@ -24,7 +24,7 @@ class BoxPlotChart(Nvd3Chart):
             var chart = nv.models.boxPlotChart()
                         .x(function(d) { return d.key })
 
-            session.__functions.makeChart(session, object, chart);
+            session.makeChart(session, object, chart);
         }      
     """
 

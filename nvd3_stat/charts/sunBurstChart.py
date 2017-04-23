@@ -24,7 +24,7 @@ class SunBurstChart(Nvd3Chart):
             var chart = nv.models.sunburstChart()
                       .mode("count")
 
-            session.__functions.makeChart(session, object, chart);
+            session.makeChart(session, object, chart);
         }        
     """
     

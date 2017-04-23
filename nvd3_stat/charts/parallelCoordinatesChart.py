@@ -30,7 +30,7 @@ class ParallelCoordinatesChart(Nvd3Chart):
                     .displayBrush(true)
                     .lineTension(0.85);
 
-            session.__functions.makeChart(session, object, chart);
+            session.makeChart(session, object, chart);
         }
     """
     

@@ -40,7 +40,7 @@ class Nvd3Chart(object):
         
 
     def _call(self, event, delay, divId, data):
-        self.nvd3Functions.call(self.funcName, event, data, divId, delay)
+        self.nvd3Functions.call(event, data, divId, delay)
 
 
     def _identifyData(self, data):
@@ -116,8 +116,9 @@ class Nvd3Chart(object):
                     (function() {
                         var plot = %s
                         var synch = function(session, object) {
+                            // in case of reload wait until libraries are loaded
                             window.nvd3_stat.promise.then(function() {
-                                window.nvd3_stat.session.__functions.charts["%s"] = plot;
+                                // window.nvd3_stat.session..charts["%s"] = plot;
                                 plot(session, object);
                             })
                         }

@@ -23,7 +23,7 @@ class BulletChart(Nvd3Chart):
         function(session, object) {
             var chart = nv.models.bulletChart()
 
-            session.__functions.makeChart(session, object, chart);
+            session.makeChart(session, object, chart);
         }      
     """
 
