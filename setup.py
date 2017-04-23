@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name = "nvd3_stat",
-    version = "0.3.0",
+    version = "0.7.0",
     author = "Bernhard Walter",
     author_email = "bwalter@gmail.com",
     description = ("Charts for pandas running in IPython and Zeppelin notebooks"),
