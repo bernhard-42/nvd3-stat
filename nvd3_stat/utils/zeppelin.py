@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import time
+import os.path
 
 def HTML(text):
     return "%%html\n%s" % text
@@ -27,38 +28,20 @@ def display_javascript(js):
     print(js)
 
 def loadNVD3(nvd3version="1.8.5", d3version="3.5.17"):
-    html = """
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.css" rel="stylesheet" crossOrigin:"anonymous">
-        <div id="nvd3_loadStatus"><div>
-    """ % (nvd3version)
-    display_html(HTML(html))
-
-    time.sleep(0.5)
+    display_html(HTML("""<div id="nvd3_loadStatus"><div>"""))
+    time.sleep(0.2)
     
+    folder = os.path.dirname(__file__)
+    with open(os.path.join(folder, "../js", "loadLibraries.js"), "r") as fd:
+        loadLibraries = fd.read()
+
     js = """
-      var print = function(msg) {
-        var el = document.getElementById("nvd3_loadStatus")
-        el.innerHTML += "<div>" + msg + "</div>";
-      }
-      print("successfully loaded nv.d3.css %s");
-      window.nvd3_stat.promise = new Promise(function(resolve, reject) {
-        jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/d3/%s/d3.min.js", function( data, textStatus, jqxhr ) {
-          if (textStatus == "success") {
-            print("successfully loaded d3.js %s");
-            jQuery.getScript("https://cdnjs.cloudflare.com/ajax/libs/nvd3/%s/nv.d3.min.js", function( data, textStatus, jqxhr ) {
-              if (textStatus == "success") {
-                print("successfully loaded nv.d3.js %s");
-                resolve();
-                jQuery.getScript("http://cdn.rawgit.com/exupero/saveSvgAsPng/gh-pages/saveSvgAsPng.js", function( data, textStatus, jqxhr ) {
-                  if (textStatus == "success") {
-                    print("successfully loaded saveSvgAsPng");
-                  }
-                })
-              }
-            })
-          }
-        })
-      })
-    """  % (nvd3version, d3version, d3version, nvd3version, nvd3version)
+        (function() {
+            var loadLibraries = %s
+            var element = document.getElementById("nvd3_loadStatus");
+            loadLibraries("%s", "%s", function(msg) { element.innerHTML += ("<div>" + msg + "</div>"); },
+                                      function(msg) { element.innerHTML += ("<div style='color:red'>Error: " + msg + "</div>"); })
+        })();
+    """ %(loadLibraries, d3version, nvd3version)
 
     display_javascript(Javascript(js))

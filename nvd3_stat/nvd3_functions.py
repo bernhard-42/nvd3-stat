@@ -44,14 +44,13 @@ class Nvd3Functions(object):
         window.nvd3_stat.session.makeChart = %s
 
         if(typeof(window.__nvd3_stat_debug) == "undefined") {
-            window.__nvd3_stat_debug = 2;  // no debug output
+            window.__nvd3_stat_debug = 0;  // no debug output
         }
         console.info("nvd3_stat is initialized");
         """ % makeChart
         display_javascript(Javascript(js))
 
-        time.sleep(0.5)
-        self.register("makeChart", "window.nvd3_stat.session.makeChart")
+        self.register("makeChart", "%s" % makeChart)
 
 
     def register(self, funcName, funcBody):
