@@ -14,6 +14,7 @@
 
 import os.path
 import time
+from textwrap import dedent
 from IPython import get_ipython
 
 if get_ipython() is None:
@@ -35,22 +36,18 @@ class Nvd3Functions(object):
         with open(os.path.join(folder, "js", "makeChart.js"), "r") as fd:
             makeChart = fd.read()
 
-        js = """
-        window.nvd3_stat = { 
-            session: {
-                charts: {}
-            } 
-        };
-        window.nvd3_stat.session.makeChart = %s
+        self.display(js=makeChart)
 
-        if(typeof(window.__nvd3_stat_debug) == "undefined") {
-            window.__nvd3_stat_debug = 0;  // no debug output
+        self.enableStreaming()
+
+
+    def enableStreaming(self):
+        js = dedent("""
+        function(session, object, chart) {
+            window.nvd3_stat.session.makeChart(session, object, chart);
         }
-        console.info("nvd3_stat is initialized");
-        """ % makeChart
-        display_javascript(Javascript(js))
-
-        self.register("makeChart", "%s" % makeChart)
+        """)
+        self.register("makeChart", js)
 
 
     def register(self, funcName, funcBody):
@@ -66,12 +63,13 @@ class Nvd3Functions(object):
 
     def traceJs(self, on=True):
         if on:
-            display_javascript(Javascript("__nvd3_stat_debug=2"))
+            self.display(js="__nvd3_stat_debug=2")
         else:
-            display_javascript(Javascript("__nvd3_stat_debug=0"))
+            self.display(js="__nvd3_stat_debug=0")
 
     def display(self, html=None, js=None):
         if js is not None:
             display_javascript(Javascript(js))
+
         if html is not None:
             display_html(HTML(html))

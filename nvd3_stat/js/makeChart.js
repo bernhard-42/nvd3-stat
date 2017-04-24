@@ -1,4 +1,14 @@
-function(session, object, chart) {
+window.nvd3_stat = { 
+    session: {
+        charts: {}
+    } 
+};
+
+if(typeof(window.__nvd3_stat_debug) == "undefined") {
+    window.__nvd3_stat_debug = 0;  // no debug output
+}
+
+window.nvd3_stat.session.makeChart = function(session, object, chart) {
 
     //
     // Generic Logger
@@ -44,7 +54,7 @@ function(session, object, chart) {
         for (var c in config) {
             if (c == "margin" || c == "arcRadius") {
                 chart[c](config[c]);                
-            } else if ((typeof(config[c]) === "object") && ! Array.isArray(config[c])) {       // sub config, 1 level
+            } else if ((typeof(config[c]) === "object") && ! Array.isArray(config[c])) { // sub config, 1 level
                 for (var c2 in config[c]) {
                     if (c2 == "tickFormat") {
                         var format = config[c][c2];
@@ -254,3 +264,5 @@ function(session, object, chart) {
         chart.update()
     }
 }
+
+console.info("nvd3_stat is initialized");

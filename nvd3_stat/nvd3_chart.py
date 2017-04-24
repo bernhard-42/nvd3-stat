@@ -15,6 +15,7 @@
 from .nvd3_functions import Nvd3Functions
 import numpy as np
 import json
+from textwrap import dedent
 
 class Nvd3Chart(object):
     _plotId = 0
@@ -106,31 +107,29 @@ class Nvd3Chart(object):
         html = """<div style="height:%dpx; width:%dpx">""" %  (overallHeight, self.width)
 
         for dataConfig, divId, width in zip(dataConfigs, self.divIds, _widths):
-            html = html + """
+            html = html + dedent("""
             <div id="%s" class="with-3d-shadow with-transitions" style="%s height:%dpx; width:%dpx">
                 <svg></svg>
                 <script class="nvd3_data">
                     var data_%s = %s;
                 </script>
-                <script>
+                <script class="nvd3_function">
                     (function() {
                         var plot = %s
-                        var synch = function(session, object) {
-                            // in case of reload wait until libraries are loaded
+
+                        // in case of reload wait until libraries are loaded
+                        var synch = function(object) {
                             window.nvd3_stat.promise.then(function() {
-                                // window.nvd3_stat.session..charts["%s"] = plot;
-                                plot(session, object);
+                                plot(window.nvd3_stat.session, object);
                             })
                         }
                         document.getElementById("%s")
-                                .addEventListener("load", synch(window.nvd3_stat.session, 
-                                                  {"event":"plot", "data": data_%s, "plotId":"%s"}))
+                                .addEventListener("load", synch({"event":"plot", "data": data_%s, "plotId":"%s"}))
                     })();
                 </script>
             </div>
-            """ % (divId, style, self.height, width, divId, json.dumps(self.deNumpy(dataConfig)), 
-                   self.funcBody.strip(), divId, divId, divId, divId)
-
+            """) % (divId, style, self.height, width, divId, json.dumps(self.deNumpy(dataConfig)), 
+                   self.funcBody.strip(), divId, divId, divId)
         
         self.nvd3Functions.display(html=html)
 
