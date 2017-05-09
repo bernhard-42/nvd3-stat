@@ -62,8 +62,8 @@ function(d3_version, nvd3_version, printSuccess, printError) {
                 console.log("requirejs")
                 requirejs.onError = function (err) {
                   if (err.requireType != "mismatch"){ // ignore first attempt
-                    printError("Could not load " + saveAsPng_js + "</div>");
-                    console.error("Could not load " + saveAsPng_js + "</div>");
+                    printError("Could not load "  + saveAsPng_js + ": " + err.requireType);
+                    console.error("Could not load " + saveAsPng_js + ": " + err.requireType);
                   }
                 }
                 require.config({ paths: {saveSvg: saveAsPng} });
@@ -77,20 +77,20 @@ function(d3_version, nvd3_version, printSuccess, printError) {
                   .done(function( script, textStatus ) {
                     printSuccess("successfully loaded saveSvgAsPng");
                   }).fail(function(jqxhr, settings, exception) { 
-                    printError("Could not load " + saveAsPng_js + "</div>");
-                    console.error("Could not load " + saveAsPng_js + "</div>");
+                    printError("Could not load " + saveAsPng_js);
+                    console.error("Could not load " + saveAsPng_js);
                   }
                 );
               }
             }).fail(function(jqxhr, settings, exception) { 
-              printError("Could not load " + nvd3_js + "</div>"); 
-              console.error("Could not load " + nvd3_js + "</div>"); 
+              printError("Could not load " + nvd3_js); 
+              console.error("Could not load " + nvd3_js); 
               reject();
             }
           );
         }).fail(function(jqxhr, settings, exception) { 
-          printError("Could not load " + d3_js + "</div>"); 
-          console.error("Could not load " + d3_js + "</div>"); 
+          printError("Could not load " + d3_js); 
+          console.error("Could not load " + d3_js); 
           reject();
         }
       );
